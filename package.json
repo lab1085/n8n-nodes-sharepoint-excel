@@ -1,0 +1,64 @@
+{
+	"name": "n8n-nodes-sharepoint-excel",
+	"version": "0.1.0",
+	"description": "n8n node to read and write Excel files stored in SharePoint (bypasses WAC token issues)",
+	"license": "MIT",
+	"homepage": "https://github.com/juanmanuel/n8n-nodes-sharepoint-excel",
+	"keywords": [
+		"n8n-community-node-package",
+		"n8n",
+		"sharepoint",
+		"excel",
+		"microsoft",
+		"graph-api"
+	],
+	"author": {
+		"name": "juanpujol"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/juanmanuel/n8n-nodes-sharepoint-excel.git"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "tsc --noEmit && biome check --write",
+		"lint:n8n": "n8n-node lint",
+		"lint:n8n:fix": "n8n-node lint --fix",
+		"lint:staged": "biome check --write --staged --no-errors-on-unmatched --error-on-warnings && git add -u",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease",
+		"prepare": "husky"
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": false,
+		"credentials": [
+			"dist/credentials/MicrosoftGraphOAuth2Api.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/SharePointExcel/SharePointExcel.node.js"
+		]
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.3.13",
+		"@commitlint/cli": "^20.4.0",
+		"@commitlint/config-conventional": "^20.4.0",
+		"@n8n/node-cli": "*",
+		"@types/node": "^22.0.0",
+		"eslint": "9.32.0",
+		"husky": "^9.1.7",
+		"release-it": "^19.0.4",
+		"typescript": "5.9.2"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	},
+	"dependencies": {
+		"exceljs": "^4.4.0"
+	}
+}

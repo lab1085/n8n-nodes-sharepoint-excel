@@ -1,0 +1,41 @@
+# Build output
+dist/
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# n8n
+.n8n/
+
+# Claude Code
+.claude/
+
+# Coverage
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
