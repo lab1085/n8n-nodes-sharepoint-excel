@@ -256,33 +256,87 @@ export class SharePointExcel implements INodeType {
 			body?: Buffer | IDataObject,
 			isBuffer = false,
 		) => {
-			const options: IHttpRequestOptions = {
-				method,
-				url: `https://graph.microsoft.com/v1.0${endpoint}`,
-				json: !isBuffer,
-			};
+			const url = `https://graph.microsoft.com/v1.0${endpoint}`;
 
-			if (body) {
-				if (isBuffer) {
-					options.body = body as unknown as string;
-					options.headers = {
-						'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			
+			try {
+				let response;
+
+				if (isBuffer && method === 'PUT' && Buffer.isBuffer(body)) {
+					// Use requestOAuth2 for binary uploads (httpRequestWithAuthentication doesn't handle buffers correctly)
+					const options = {
+						method,
+						uri: url,
+						body: body,
+						headers: {
+							'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+							'Content-Length': body.length,
+						},
+						encoding: null,
+						json: false,
 					};
+					// eslint-disable-next-line @n8n/community-nodes/no-deprecated-workflow-functions
+					response = await this.helpers.requestOAuth2.call(
+						this,
+						'microsoftGraphOAuth2Api',
+						options,
+					);
+				} else if (isBuffer && method === 'GET') {
+					// Use httpRequestWithAuthentication for downloads
+					const options: IHttpRequestOptions = {
+						method,
+						url,
+						encoding: 'arraybuffer',
+						json: false,
+						timeout: 30000,
+					};
+					response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'microsoftGraphOAuth2Api',
+						options,
+					);
 				} else {
-					options.body = body as unknown as string;
+					// Regular JSON requests
+					const options: IHttpRequestOptions = {
+						method,
+						url,
+						json: true,
+						timeout: 30000,
+					};
+					if (body && !Buffer.isBuffer(body)) {
+						options.body = body as IDataObject;
+					}
+					response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'microsoftGraphOAuth2Api',
+						options,
+					);
 				}
-			}
 
-			if (isBuffer && method === 'GET') {
-				options.encoding = 'arraybuffer';
-				options.json = false;
-			}
+				
+				// Check if response is an error object from Graph API
+				if (response && typeof response === 'object' && 'error' in response) {
+					const errorResponse = response as { error: { message?: string; code?: string } };
+					throw new NodeOperationError(
+						this.getNode(),
+						errorResponse.error.message || 'Graph API request failed',
+						{ description: `Error code: ${errorResponse.error.code || 'unknown'}` },
+					);
+				}
 
-			return this.helpers.httpRequestWithAuthentication.call(
-				this,
-				'microsoftGraphOAuth2Api',
-				options,
-			);
+				return response;
+			} catch (err) {
+								// Re-throw NodeOperationError as-is
+				if (err instanceof NodeOperationError) {
+					throw err;
+				}
+				// Wrap other errors
+				const error = err as Error;
+				throw new NodeOperationError(
+					this.getNode(),
+					`Graph API request failed: ${error.message}`,
+				);
+			}
 		};
 
 		// Download Excel file as ArrayBuffer
@@ -292,8 +346,9 @@ export class SharePointExcel implements INodeType {
 		};
 
 		// Upload Excel file
-		const uploadExcel = async (data: ArrayBuffer): Promise<void> => {
-			await graphRequest('PUT', `${basePath}/content`, Buffer.from(data), true);
+		const uploadExcel = async (data: Buffer | ArrayBuffer): Promise<void> => {
+			const buffer = Buffer.isBuffer(data) ? data : Buffer.from(data);
+			await graphRequest('PUT', `${basePath}/content`, buffer, true);
 		};
 
 		try {
@@ -403,11 +458,25 @@ export class SharePointExcel implements INodeType {
 						headers[colNumber] = String(cell.value);
 					});
 
-					// Build header-to-column map
+					// Check if headers exist, if not create them from the first row's keys
+					const hasHeaders = headers.some((h) => h && h.trim() !== '');
 					const headerMap: Record<string, number> = {};
-					headers.forEach((h, idx) => {
-						if (h) headerMap[h] = idx;
-					});
+
+					if (!hasHeaders && rowsToAdd.length > 0) {
+						// Create headers from the keys of the first row
+						const keys = Object.keys(rowsToAdd[0]);
+						keys.forEach((key, idx) => {
+							const colNumber = idx + 1; // Excel columns are 1-indexed
+							headerRow.getCell(colNumber).value = key;
+							headers[colNumber] = key;
+							headerMap[key] = colNumber;
+						});
+					} else {
+						// Build header-to-column map from existing headers
+						headers.forEach((h, idx) => {
+							if (h) headerMap[h] = idx;
+						});
+					}
 
 					// Add rows
 					for (const rowData of rowsToAdd) {
@@ -468,14 +537,27 @@ export class SharePointExcel implements INodeType {
 					},
 				});
 			}
-		} catch (error) {
-			if (this.continueOnFail()) {
-				returnData.push({
-					json: { error: (error as Error).message },
-					pairedItem: { item: 0 },
-				});
+		} catch (err) {
+			// Re-throw NodeOperationError as-is to preserve error details
+			if (err instanceof NodeOperationError) {
+				if (this.continueOnFail()) {
+					returnData.push({
+						json: { error: err.message },
+						pairedItem: { item: 0 },
+					});
+				} else {
+					throw err;
+				}
 			} else {
-				throw new NodeOperationError(this.getNode(), error as Error);
+				const error = err as Error;
+				if (this.continueOnFail()) {
+					returnData.push({
+						json: { error: error.message },
+						pairedItem: { item: 0 },
+					});
+				} else {
+					throw new NodeOperationError(this.getNode(), error.message);
+				}
 			}
 		}
 
