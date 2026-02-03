@@ -1,4 +1,4 @@
-import * as ExcelJS from "exceljs";
+import * as ExcelJS from 'exceljs';
 import type {
 	IDataObject,
 	IExecuteFunctions,
@@ -7,224 +7,223 @@ import type {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
-} from "n8n-workflow";
-import { NodeConnectionTypes, NodeOperationError } from "n8n-workflow";
+} from 'n8n-workflow';
+import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 export class SharePointExcel implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: "SharePoint Excel",
-		name: "sharePointExcel",
-		icon: "file:excel.svg",
-		group: ["transform"],
+		displayName: 'SharePoint Excel',
+		name: 'sharePointExcel',
+		icon: 'file:excel.svg',
+		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"]}}',
 		description:
-			"Read and write Excel files in SharePoint or OneDrive (bypasses WAC token issues).",
+			'Read and write Excel files in SharePoint or OneDrive (bypasses WAC token issues).',
 		defaults: {
-			name: "SharePoint Excel",
+			name: 'SharePoint Excel',
 		},
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
 		usableAsTool: true,
 		credentials: [
 			{
-				name: "microsoftGraphOAuth2Api",
+				name: 'microsoftGraphOAuth2Api',
 				required: true,
 			},
 		],
 		properties: [
 			// Source selector
 			{
-				displayName: "Source",
-				name: "source",
-				type: "options",
+				displayName: 'Source',
+				name: 'source',
+				type: 'options',
 				noDataExpression: true,
 				options: [
 					{
-						name: "SharePoint",
-						value: "sharepoint",
-						description: "Excel file stored in a SharePoint document library",
+						name: 'SharePoint',
+						value: 'sharepoint',
+						description: 'Excel file stored in a SharePoint document library',
 					},
 					{
-						name: "OneDrive",
-						value: "onedrive",
-						description: "Excel file stored in OneDrive",
+						name: 'OneDrive',
+						value: 'onedrive',
+						description: 'Excel file stored in OneDrive',
 					},
 				],
-				default: "sharepoint",
+				default: 'sharepoint',
 			},
 
 			// Operation selector
 			{
-				displayName: "Operation",
-				name: "operation",
-				type: "options",
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
 				noDataExpression: true,
 				options: [
 					{
-						name: "Append Rows",
-						value: "appendRows",
-						description: "Add rows to the end of a sheet",
-						action: "Append rows to sheet",
+						name: 'Append Rows',
+						value: 'appendRows',
+						description: 'Add rows to the end of a sheet',
+						action: 'Append rows to sheet',
 					},
 					{
-						name: "Get Sheets",
-						value: "getSheets",
-						description: "Get list of sheets in the workbook",
-						action: "Get sheet names",
+						name: 'Get Sheets',
+						value: 'getSheets',
+						description: 'Get list of sheets in the workbook',
+						action: 'Get sheet names',
 					},
 					{
-						name: "Read Rows",
-						value: "readRows",
-						description: "Read rows from a sheet",
-						action: "Read rows from sheet",
+						name: 'Read Rows',
+						value: 'readRows',
+						description: 'Read rows from a sheet',
+						action: 'Read rows from sheet',
 					},
 					{
-						name: "Update Cell",
-						value: "updateCell",
-						description: "Update a specific cell value",
-						action: "Update cell value",
+						name: 'Update Cell',
+						value: 'updateCell',
+						description: 'Update a specific cell value',
+						action: 'Update cell value',
 					},
 				],
-				default: "readRows",
+				default: 'readRows',
 			},
 
 			// Site ID - SharePoint only
 			{
-				displayName: "Site ID",
-				name: "siteId",
-				type: "string",
+				displayName: 'Site ID',
+				name: 'siteId',
+				type: 'string',
 				required: true,
-				default: "",
-				placeholder: "contoso.sharepoint.com,site-guid,web-guid",
+				default: '',
+				placeholder: 'contoso.sharepoint.com,site-guid,web-guid',
 				description:
-					"The SharePoint site ID. Find it via Graph Explorer: GET /sites/{hostname}:/{site-path}.",
+					'The SharePoint site ID. Find it via Graph Explorer: GET /sites/{hostname}:/{site-path}.',
 				displayOptions: {
 					show: {
-						source: ["sharepoint"],
+						source: ['sharepoint'],
 					},
 				},
 			},
 
 			// Drive ID - shown for both but with different descriptions
 			{
-				displayName: "Drive ID",
-				name: "driveId",
-				type: "string",
+				displayName: 'Drive ID',
+				name: 'driveId',
+				type: 'string',
 				required: true,
-				default: "",
-				placeholder: "b!xxxxx",
+				default: '',
+				placeholder: 'b!xxxxx',
 				description:
-					"The drive ID. For SharePoint: GET /sites/{siteId}/drives. For OneDrive: GET /me/drives.",
+					'The drive ID. For SharePoint: GET /sites/{siteId}/drives. For OneDrive: GET /me/drives.',
 			},
 
 			// File ID
 			{
-				displayName: "File ID",
-				name: "fileId",
-				type: "string",
+				displayName: 'File ID',
+				name: 'fileId',
+				type: 'string',
 				required: true,
-				default: "",
-				placeholder: "01ABCDEF...",
-				description:
-					"The Excel file item ID. Find via: GET /drives/{driveId}/root/children.",
+				default: '',
+				placeholder: '01ABCDEF...',
+				description: 'The Excel file item ID. Find via: GET /drives/{driveId}/root/children.',
 			},
 
 			// Sheet name (not for getSheets)
 			{
-				displayName: "Sheet Name",
-				name: "sheetName",
-				type: "string",
+				displayName: 'Sheet Name',
+				name: 'sheetName',
+				type: 'string',
 				required: true,
-				default: "Sheet1",
-				description: "Name of the worksheet",
+				default: 'Sheet1',
+				description: 'Name of the worksheet',
 				displayOptions: {
 					hide: {
-						operation: ["getSheets"],
+						operation: ['getSheets'],
 					},
 				},
 			},
 
 			// Options for readRows
 			{
-				displayName: "Options",
-				name: "options",
-				type: "collection",
-				placeholder: "Add Option",
+				displayName: 'Options',
+				name: 'options',
+				type: 'collection',
+				placeholder: 'Add Option',
 				default: {},
 				displayOptions: {
 					show: {
-						operation: ["readRows"],
+						operation: ['readRows'],
 					},
 				},
 				options: [
 					{
-						displayName: "Header Row",
-						name: "headerRow",
-						type: "number",
+						displayName: 'Header Row',
+						name: 'headerRow',
+						type: 'number',
 						default: 1,
-						description: "Row number containing headers (1-indexed)",
+						description: 'Row number containing headers (1-indexed)',
 					},
 					{
-						displayName: "Start Row",
-						name: "startRow",
-						type: "number",
+						displayName: 'Start Row',
+						name: 'startRow',
+						type: 'number',
 						default: 2,
-						description: "First data row to read (1-indexed)",
+						description: 'First data row to read (1-indexed)',
 					},
 					{
-						displayName: "Max Rows",
-						name: "maxRows",
-						type: "number",
+						displayName: 'Max Rows',
+						name: 'maxRows',
+						type: 'number',
 						default: 0,
-						description: "Maximum rows to return (0 = all)",
+						description: 'Maximum rows to return (0 = all)',
 					},
 				],
 			},
 
 			// Row data for appendRows
 			{
-				displayName: "Row Data",
-				name: "rowData",
-				type: "json",
+				displayName: 'Row Data',
+				name: 'rowData',
+				type: 'json',
 				required: true,
-				default: "{}",
+				default: '{}',
 				description:
-					"JSON object with column headers as keys, or array of objects for multiple rows",
+					'JSON object with column headers as keys, or array of objects for multiple rows',
 				displayOptions: {
 					show: {
-						operation: ["appendRows"],
+						operation: ['appendRows'],
 					},
 				},
 			},
 
 			// Cell reference for updateCell
 			{
-				displayName: "Cell Reference",
-				name: "cellRef",
-				type: "string",
+				displayName: 'Cell Reference',
+				name: 'cellRef',
+				type: 'string',
 				required: true,
-				default: "A1",
-				placeholder: "A1",
-				description: "Cell to update (e.g., A1, B5, C10)",
+				default: 'A1',
+				placeholder: 'A1',
+				description: 'Cell to update (e.g., A1, B5, C10)',
 				displayOptions: {
 					show: {
-						operation: ["updateCell"],
+						operation: ['updateCell'],
 					},
 				},
 			},
 
 			// Cell value for updateCell
 			{
-				displayName: "Value",
-				name: "cellValue",
-				type: "string",
+				displayName: 'Value',
+				name: 'cellValue',
+				type: 'string',
 				required: true,
-				default: "",
-				description: "New value for the cell",
+				default: '',
+				description: 'New value for the cell',
 				displayOptions: {
 					show: {
-						operation: ["updateCell"],
+						operation: ['updateCell'],
 					},
 				},
 			},
@@ -235,15 +234,15 @@ export class SharePointExcel implements INodeType {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
 
-		const source = this.getNodeParameter("source", 0) as string;
-		const operation = this.getNodeParameter("operation", 0) as string;
-		const driveId = this.getNodeParameter("driveId", 0) as string;
-		const fileId = this.getNodeParameter("fileId", 0) as string;
+		const source = this.getNodeParameter('source', 0) as string;
+		const operation = this.getNodeParameter('operation', 0) as string;
+		const driveId = this.getNodeParameter('driveId', 0) as string;
+		const fileId = this.getNodeParameter('fileId', 0) as string;
 
 		// Build base path based on source
 		let basePath: string;
-		if (source === "sharepoint") {
-			const siteId = this.getNodeParameter("siteId", 0) as string;
+		if (source === 'sharepoint') {
+			const siteId = this.getNodeParameter('siteId', 0) as string;
 			basePath = `/sites/${siteId}/drives/${driveId}/items/${fileId}`;
 		} else {
 			// OneDrive - uses drive directly
@@ -267,44 +266,38 @@ export class SharePointExcel implements INodeType {
 				if (isBuffer) {
 					options.body = body as unknown as string;
 					options.headers = {
-						"Content-Type":
-							"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+						'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 					};
 				} else {
 					options.body = body as unknown as string;
 				}
 			}
 
-			if (isBuffer && method === "GET") {
-				options.encoding = "arraybuffer";
+			if (isBuffer && method === 'GET') {
+				options.encoding = 'arraybuffer';
 				options.json = false;
 			}
 
 			return this.helpers.httpRequestWithAuthentication.call(
 				this,
-				"microsoftGraphOAuth2Api",
+				'microsoftGraphOAuth2Api',
 				options,
 			);
 		};
 
 		// Download Excel file as ArrayBuffer
 		const downloadExcel = async (): Promise<ArrayBuffer> => {
-			const response = await graphRequest(
-				"GET",
-				`${basePath}/content`,
-				undefined,
-				true,
-			);
+			const response = await graphRequest('GET', `${basePath}/content`, undefined, true);
 			return response as ArrayBuffer;
 		};
 
 		// Upload Excel file
 		const uploadExcel = async (data: ArrayBuffer): Promise<void> => {
-			await graphRequest("PUT", `${basePath}/content`, Buffer.from(data), true);
+			await graphRequest('PUT', `${basePath}/content`, Buffer.from(data), true);
 		};
 
 		try {
-			if (operation === "getSheets") {
+			if (operation === 'getSheets') {
 				// Download and parse to get sheet names
 				const buffer = await downloadExcel();
 				const workbook = new ExcelJS.Workbook();
@@ -320,9 +313,9 @@ export class SharePointExcel implements INodeType {
 				returnData.push({ json: { sheets } });
 			}
 
-			if (operation === "readRows") {
-				const sheetName = this.getNodeParameter("sheetName", 0) as string;
-				const options = this.getNodeParameter("options", 0) as IDataObject;
+			if (operation === 'readRows') {
+				const sheetName = this.getNodeParameter('sheetName', 0) as string;
+				const options = this.getNodeParameter('options', 0) as IDataObject;
 				const headerRow = (options.headerRow as number) || 1;
 				const startRow = (options.startRow as number) || 2;
 				const maxRows = (options.maxRows as number) || 0;
@@ -368,16 +361,16 @@ export class SharePointExcel implements INodeType {
 				}
 
 				if (returnData.length === 0) {
-					returnData.push({ json: { message: "No data found in sheet" } });
+					returnData.push({ json: { message: 'No data found in sheet' } });
 				}
 			}
 
-			if (operation === "appendRows") {
-				const sheetName = this.getNodeParameter("sheetName", 0) as string;
+			if (operation === 'appendRows') {
+				const sheetName = this.getNodeParameter('sheetName', 0) as string;
 
 				// Process each input item
 				for (let i = 0; i < items.length; i++) {
-					const rowDataParam = this.getNodeParameter("rowData", i) as string;
+					const rowDataParam = this.getNodeParameter('rowData', i) as string;
 					let rowsToAdd: IDataObject[];
 
 					try {
@@ -398,11 +391,9 @@ export class SharePointExcel implements INodeType {
 
 					const worksheet = workbook.getWorksheet(sheetName);
 					if (!worksheet) {
-						throw new NodeOperationError(
-							this.getNode(),
-							`Sheet "${sheetName}" not found`,
-							{ itemIndex: i },
-						);
+						throw new NodeOperationError(this.getNode(), `Sheet "${sheetName}" not found`, {
+							itemIndex: i,
+						});
 					}
 
 					// Get existing headers from row 1
@@ -444,10 +435,10 @@ export class SharePointExcel implements INodeType {
 				}
 			}
 
-			if (operation === "updateCell") {
-				const sheetName = this.getNodeParameter("sheetName", 0) as string;
-				const cellRef = this.getNodeParameter("cellRef", 0) as string;
-				const cellValue = this.getNodeParameter("cellValue", 0) as string;
+			if (operation === 'updateCell') {
+				const sheetName = this.getNodeParameter('sheetName', 0) as string;
+				const cellRef = this.getNodeParameter('cellRef', 0) as string;
+				const cellValue = this.getNodeParameter('cellValue', 0) as string;
 
 				const buffer = await downloadExcel();
 				const workbook = new ExcelJS.Workbook();
@@ -455,10 +446,7 @@ export class SharePointExcel implements INodeType {
 
 				const worksheet = workbook.getWorksheet(sheetName);
 				if (!worksheet) {
-					throw new NodeOperationError(
-						this.getNode(),
-						`Sheet "${sheetName}" not found`,
-					);
+					throw new NodeOperationError(this.getNode(), `Sheet "${sheetName}" not found`);
 				}
 
 				// Update the cell
