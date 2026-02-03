@@ -4,7 +4,10 @@ import type {
 	IExecuteFunctions,
 	IHttpRequestMethods,
 	IHttpRequestOptions,
+	ILoadOptionsFunctions,
 	INodeExecutionData,
+	INodeListSearchItems,
+	INodeListSearchResult,
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
@@ -89,54 +92,157 @@ export class SharePointExcel implements INodeType {
 				default: 'readRows',
 			},
 
-			// Site ID - SharePoint only
+			// Site ID - SharePoint only (resourceLocator with search)
 			{
-				displayName: 'Site ID',
+				displayName: 'Site',
 				name: 'siteId',
-				type: 'string',
+				type: 'resourceLocator',
 				required: true,
-				default: '',
-				placeholder: 'contoso.sharepoint.com,site-guid,web-guid',
-				description:
-					'The SharePoint site ID. Find it via Graph Explorer: GET /sites/{hostname}:/{site-path}.',
+				default: { mode: 'list', value: '' },
+				description: 'The SharePoint site',
 				displayOptions: {
 					show: {
 						source: ['sharepoint'],
 					},
 				},
+				modes: [
+					{
+						displayName: 'From List',
+						name: 'list',
+						type: 'list',
+						placeholder: 'Search for a site...',
+						typeOptions: {
+							searchListMethod: 'searchSites',
+							searchable: true,
+						},
+					},
+					{
+						displayName: 'By ID',
+						name: 'id',
+						type: 'string',
+						placeholder: 'contoso.sharepoint.com,site-guid,web-guid',
+						validation: [
+							{
+								type: 'regex',
+								properties: {
+									regex: '.+',
+									errorMessage: 'Site ID cannot be empty',
+								},
+							},
+						],
+					},
+				],
 			},
 
-			// Drive ID - shown for both but with different descriptions
+			// Drive ID - resourceLocator with list and manual ID
 			{
-				displayName: 'Drive ID',
+				displayName: 'Drive',
 				name: 'driveId',
-				type: 'string',
+				type: 'resourceLocator',
 				required: true,
-				default: '',
-				placeholder: 'b!xxxxx',
-				description:
-					'The drive ID. For SharePoint: GET /sites/{siteId}/drives. For OneDrive: GET /me/drives.',
+				default: { mode: 'list', value: '' },
+				description: 'The document library or drive containing the file',
+				modes: [
+					{
+						displayName: 'From List',
+						name: 'list',
+						type: 'list',
+						placeholder: 'Select a drive...',
+						typeOptions: {
+							searchListMethod: 'getDrives',
+							searchable: false,
+						},
+					},
+					{
+						displayName: 'By ID',
+						name: 'id',
+						type: 'string',
+						placeholder: 'b!xxxxx',
+						validation: [
+							{
+								type: 'regex',
+								properties: {
+									regex: '.+',
+									errorMessage: 'Drive ID cannot be empty',
+								},
+							},
+						],
+					},
+				],
 			},
 
-			// File ID
+			// File ID - resourceLocator with list and manual ID
 			{
-				displayName: 'File ID',
+				displayName: 'File',
 				name: 'fileId',
-				type: 'string',
+				type: 'resourceLocator',
 				required: true,
-				default: '',
-				placeholder: '01ABCDEF...',
-				description: 'The Excel file item ID. Find via: GET /drives/{driveId}/root/children.',
+				default: { mode: 'list', value: '' },
+				description: 'The Excel file (.xlsx) to operate on',
+				modes: [
+					{
+						displayName: 'From List',
+						name: 'list',
+						type: 'list',
+						placeholder: 'Select a file...',
+						typeOptions: {
+							searchListMethod: 'getFiles',
+							searchable: false,
+						},
+					},
+					{
+						displayName: 'By ID',
+						name: 'id',
+						type: 'string',
+						placeholder: '01ABCDEF...',
+						validation: [
+							{
+								type: 'regex',
+								properties: {
+									regex: '.+',
+									errorMessage: 'File ID cannot be empty',
+								},
+							},
+						],
+					},
+				],
 			},
 
-			// Sheet name (not for getSheets)
+			// Sheet name - resourceLocator with list and manual input (not for getSheets)
 			{
-				displayName: 'Sheet Name',
+				displayName: 'Sheet',
 				name: 'sheetName',
-				type: 'string',
+				type: 'resourceLocator',
 				required: true,
-				default: 'Sheet1',
-				description: 'Name of the worksheet',
+				default: { mode: 'list', value: '' },
+				description: 'The worksheet to operate on',
+				modes: [
+					{
+						displayName: 'From List',
+						name: 'list',
+						type: 'list',
+						placeholder: 'Select a sheet...',
+						typeOptions: {
+							searchListMethod: 'getSheets',
+							searchable: false,
+						},
+					},
+					{
+						displayName: 'By Name',
+						name: 'name',
+						type: 'string',
+						placeholder: 'Sheet1',
+						validation: [
+							{
+								type: 'regex',
+								properties: {
+									regex: '.+',
+									errorMessage: 'Sheet name cannot be empty',
+								},
+							},
+						],
+					},
+				],
 				displayOptions: {
 					hide: {
 						operation: ['getSheets'],
@@ -230,19 +336,198 @@ export class SharePointExcel implements INodeType {
 		],
 	};
 
+	methods = {
+		listSearch: {
+			async searchSites(
+				this: ILoadOptionsFunctions,
+				filter?: string,
+			): Promise<INodeListSearchResult> {
+				const results: INodeListSearchItems[] = [];
+
+				if (!filter || filter.trim() === '') {
+					return { results };
+				}
+
+				try {
+					const response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'microsoftGraphOAuth2Api',
+						{
+							method: 'GET',
+							url: `https://graph.microsoft.com/v1.0/sites?search=${encodeURIComponent(filter)}`,
+							json: true,
+						},
+					);
+
+					const sites = (response as { value?: Array<{ id: string; displayName: string; webUrl: string }> }).value || [];
+					for (const site of sites) {
+						results.push({
+							name: site.displayName,
+							value: site.id,
+							url: site.webUrl,
+						});
+					}
+				} catch {
+					// Return empty results on error
+				}
+
+				return { results };
+			},
+
+			async getDrives(this: ILoadOptionsFunctions): Promise<INodeListSearchResult> {
+				const results: INodeListSearchItems[] = [];
+
+				try {
+					const source = this.getNodeParameter('source') as string;
+					let endpoint: string;
+
+					if (source === 'sharepoint') {
+						const siteIdParam = this.getNodeParameter('siteId') as string | { value: string };
+						const siteId = typeof siteIdParam === 'object' ? siteIdParam.value : siteIdParam;
+
+						if (!siteId) {
+							return { results };
+						}
+						endpoint = `https://graph.microsoft.com/v1.0/sites/${siteId}/drives`;
+					} else {
+						endpoint = 'https://graph.microsoft.com/v1.0/me/drives';
+					}
+
+					const response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'microsoftGraphOAuth2Api',
+						{
+							method: 'GET',
+							url: endpoint,
+							json: true,
+						},
+					);
+
+					const drives = (response as { value?: Array<{ id: string; name: string }> }).value || [];
+					for (const drive of drives) {
+						results.push({
+							name: drive.name,
+							value: drive.id,
+						});
+					}
+				} catch {
+					// Return empty results on error
+				}
+
+				return { results };
+			},
+
+			async getFiles(this: ILoadOptionsFunctions): Promise<INodeListSearchResult> {
+				const results: INodeListSearchItems[] = [];
+
+				try {
+					const driveIdParam = this.getNodeParameter('driveId') as string | { value: string };
+					const driveId = typeof driveIdParam === 'object' ? driveIdParam.value : driveIdParam;
+
+					if (!driveId) {
+						return { results };
+					}
+
+					const response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'microsoftGraphOAuth2Api',
+						{
+							method: 'GET',
+							url: `https://graph.microsoft.com/v1.0/drives/${driveId}/root/children`,
+							json: true,
+						},
+					);
+
+					const items = (response as { value?: Array<{ id: string; name: string; file?: object }> }).value || [];
+					for (const item of items) {
+						// Only show Excel files
+						if (item.file && item.name.toLowerCase().endsWith('.xlsx')) {
+							results.push({
+								name: item.name,
+								value: item.id,
+							});
+						}
+					}
+				} catch {
+					// Return empty results on error
+				}
+
+				return { results };
+			},
+
+			async getSheets(this: ILoadOptionsFunctions): Promise<INodeListSearchResult> {
+				const results: INodeListSearchItems[] = [];
+
+				try {
+					const source = this.getNodeParameter('source') as string;
+					const driveIdParam = this.getNodeParameter('driveId') as string | { value: string };
+					const driveId = typeof driveIdParam === 'object' ? driveIdParam.value : driveIdParam;
+					const fileIdParam = this.getNodeParameter('fileId') as string | { value: string };
+					const fileId = typeof fileIdParam === 'object' ? fileIdParam.value : fileIdParam;
+
+					if (!driveId || !fileId) {
+						return { results };
+					}
+
+					// Build endpoint based on source
+					let endpoint: string;
+					if (source === 'sharepoint') {
+						const siteIdParam = this.getNodeParameter('siteId') as string | { value: string };
+						const siteId = typeof siteIdParam === 'object' ? siteIdParam.value : siteIdParam;
+						endpoint = `https://graph.microsoft.com/v1.0/sites/${siteId}/drives/${driveId}/items/${fileId}/content`;
+					} else {
+						endpoint = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${fileId}/content`;
+					}
+
+					// Download the file
+					const response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'microsoftGraphOAuth2Api',
+						{
+							method: 'GET',
+							url: endpoint,
+							encoding: 'arraybuffer',
+							json: false,
+						},
+					);
+
+					// Parse with exceljs
+					const workbook = new ExcelJS.Workbook();
+					await workbook.xlsx.load(response as ArrayBuffer);
+
+					for (const worksheet of workbook.worksheets) {
+						results.push({
+							name: worksheet.name,
+							value: worksheet.name,
+						});
+					}
+				} catch {
+					// Return empty results on error
+				}
+
+				return { results };
+			},
+		},
+	};
+
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
 
 		const source = this.getNodeParameter('source', 0) as string;
 		const operation = this.getNodeParameter('operation', 0) as string;
-		const driveId = this.getNodeParameter('driveId', 0) as string;
-		const fileId = this.getNodeParameter('fileId', 0) as string;
+
+		// Handle resourceLocator format for driveId and fileId
+		const driveIdParam = this.getNodeParameter('driveId', 0) as string | { value: string };
+		const driveId = typeof driveIdParam === 'object' ? driveIdParam.value : driveIdParam;
+		const fileIdParam = this.getNodeParameter('fileId', 0) as string | { value: string };
+		const fileId = typeof fileIdParam === 'object' ? fileIdParam.value : fileIdParam;
 
 		// Build base path based on source
 		let basePath: string;
 		if (source === 'sharepoint') {
-			const siteId = this.getNodeParameter('siteId', 0) as string;
+			const siteIdParam = this.getNodeParameter('siteId', 0) as string | { value: string };
+			const siteId = typeof siteIdParam === 'object' ? siteIdParam.value : siteIdParam;
 			basePath = `/sites/${siteId}/drives/${driveId}/items/${fileId}`;
 		} else {
 			// OneDrive - uses drive directly
@@ -369,7 +654,8 @@ export class SharePointExcel implements INodeType {
 			}
 
 			if (operation === 'readRows') {
-				const sheetName = this.getNodeParameter('sheetName', 0) as string;
+				const sheetNameParam = this.getNodeParameter('sheetName', 0) as string | { value: string };
+				const sheetName = typeof sheetNameParam === 'object' ? sheetNameParam.value : sheetNameParam;
 				const options = this.getNodeParameter('options', 0) as IDataObject;
 				const headerRow = (options.headerRow as number) || 1;
 				const startRow = (options.startRow as number) || 2;
@@ -421,7 +707,8 @@ export class SharePointExcel implements INodeType {
 			}
 
 			if (operation === 'appendRows') {
-				const sheetName = this.getNodeParameter('sheetName', 0) as string;
+				const sheetNameParam = this.getNodeParameter('sheetName', 0) as string | { value: string };
+				const sheetName = typeof sheetNameParam === 'object' ? sheetNameParam.value : sheetNameParam;
 
 				// Process each input item
 				for (let i = 0; i < items.length; i++) {
@@ -505,7 +792,8 @@ export class SharePointExcel implements INodeType {
 			}
 
 			if (operation === 'updateCell') {
-				const sheetName = this.getNodeParameter('sheetName', 0) as string;
+				const sheetNameParam = this.getNodeParameter('sheetName', 0) as string | { value: string };
+				const sheetName = typeof sheetNameParam === 'object' ? sheetNameParam.value : sheetNameParam;
 				const cellRef = this.getNodeParameter('cellRef', 0) as string;
 				const cellValue = this.getNodeParameter('cellValue', 0) as string;
 
