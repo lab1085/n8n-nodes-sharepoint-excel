@@ -14,27 +14,16 @@ Releases are published to npm using `npm run release`, which wraps `release-it`.
 
 ## Branch Strategy
 
-- **develop** - Active development branch
 - **main** - Stable release branch
+- **feature branches** - For development work, squash merged to main
 
 ## Release Workflow
 
 ### 1. Prepare for Release
 
-Ensure all changes are merged to `develop` and tested.
+Ensure all changes are merged to `main` and tested.
 
-### 2. Sync Main with Develop
-
-```bash
-git checkout main
-git pull origin main
-git rebase develop
-git push origin main
-```
-
-Note: If push is rejected, use `git push --force-with-lease origin main`.
-
-### 3. Run the Release
+### 2. Run the Release
 
 ```bash
 npm login  # if session expired (tokens last ~12 hours)
@@ -51,14 +40,6 @@ This will:
 6. Push to GitHub
 7. Create GitHub release (opens browser if no GITHUB_TOKEN)
 8. Publish to npm
-
-### 4. Sync Develop with Main
-
-```bash
-git checkout develop
-git pull origin main
-git push origin develop
-```
 
 ## Configuration
 
@@ -114,9 +95,7 @@ See "Commit Messages" section above for manual fix.
 
 ## Checklist
 
-- [ ] All changes merged to develop
-- [ ] Main rebased on develop
+- [ ] All changes merged to main
 - [ ] Logged into npm
 - [ ] `npm run release` completed successfully
 - [ ] GitHub release created
-- [ ] Develop synced with main
