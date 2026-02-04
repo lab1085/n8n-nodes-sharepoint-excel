@@ -13,8 +13,11 @@ bun run build        # Compile TypeScript to dist/
 bun run lint         # Typecheck + n8n ESLint
 bun run lint:fix     # Auto-fix linting issues
 bun run format       # Format code with Prettier
+bun run test         # Run tests with vitest (DO NOT use `bun test`)
 bun run dev          # Start n8n with node loaded + hot reload (DO NOT run this)
 ```
+
+**Important:** Use `bun run test` not `bun test`. The latter uses Bun's built-in test runner which doesn't support vitest APIs like `vi.mocked()`.
 
 ## Tooling
 

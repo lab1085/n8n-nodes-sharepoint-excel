@@ -15,24 +15,32 @@ export function buildContext(
 	const resource = executeFunctions.getNodeParameter('resource', 0) as Resource;
 	const operation = executeFunctions.getNodeParameter('operation', 0) as Operation;
 
-	// Handle resourceLocator format for driveId and fileId
+	// Handle resourceLocator format for driveId
 	const driveIdParam = executeFunctions.getNodeParameter('driveId', 0) as
 		| string
 		| ResourceLocatorValue;
 	const driveId =
 		typeof driveIdParam === 'object' ? driveIdParam.value : driveIdParam;
-	const fileIdParam = executeFunctions.getNodeParameter('fileId', 0) as
-		| string
-		| ResourceLocatorValue;
-	const fileId =
-		typeof fileIdParam === 'object' ? fileIdParam.value : fileIdParam;
 
-	// Build base path for SharePoint
-	const siteIdParam = executeFunctions.getNodeParameter('siteId', 0) as
-		| string
-		| ResourceLocatorValue;
-	const siteId = typeof siteIdParam === 'object' ? siteIdParam.value : siteIdParam;
-	const basePath = `/sites/${siteId}/drives/${driveId}/items/${fileId}`;
+	// fileId is not required for getWorkbooks operation
+	let fileId: string | undefined;
+	if (operation !== 'getWorkbooks') {
+		const fileIdParam = executeFunctions.getNodeParameter('fileId', 0) as
+			| string
+			| ResourceLocatorValue;
+		fileId = typeof fileIdParam === 'object' ? fileIdParam.value : fileIdParam;
+	}
+
+	// siteId is not required for getWorkbooks operation
+	let siteId: string | undefined;
+	let basePath = '';
+	if (operation !== 'getWorkbooks') {
+		const siteIdParam = executeFunctions.getNodeParameter('siteId', 0) as
+			| string
+			| ResourceLocatorValue;
+		siteId = typeof siteIdParam === 'object' ? siteIdParam.value : siteIdParam;
+		basePath = `/sites/${siteId}/drives/${driveId}/items/${fileId}`;
+	}
 
 	return {
 		source,

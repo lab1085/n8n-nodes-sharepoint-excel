@@ -124,8 +124,10 @@ export async function getMappingColumns(
 				});
 			}
 		});
-	} catch {
-		// Return empty fields on error
+	} catch (err) {
+		this.logger.error('Failed to load mapping columns', {
+			error: err instanceof Error ? err.message : String(err),
+		});
 	}
 
 	return { fields };

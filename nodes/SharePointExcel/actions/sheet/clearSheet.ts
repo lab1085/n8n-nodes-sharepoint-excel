@@ -20,9 +20,9 @@ export async function execute(
 	const rowCount = worksheet.rowCount;
 	const columnCount = worksheet.columnCount;
 
-	// Clear all rows (keeping the worksheet)
-	for (let i = worksheet.rowCount; i >= 1; i--) {
-		worksheet.spliceRows(i, 1);
+	// Clear all rows in one call (keeping the worksheet)
+	if (rowCount > 0) {
+		worksheet.spliceRows(1, rowCount);
 	}
 
 	// Upload back

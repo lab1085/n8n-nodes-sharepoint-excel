@@ -51,8 +51,10 @@ export async function searchSites(
 				url: site.webUrl,
 			});
 		}
-	} catch {
-		// Return empty results on error
+	} catch (err) {
+		this.logger.error('Failed to search sites', {
+			error: err instanceof Error ? err.message : String(err),
+		});
 	}
 
 	return { results };
@@ -94,8 +96,10 @@ export async function getDrives(
 				value: drive.id,
 			});
 		}
-	} catch {
-		// Return empty results on error
+	} catch (err) {
+		this.logger.error('Failed to get drives', {
+			error: err instanceof Error ? err.message : String(err),
+		});
 	}
 
 	return { results };
@@ -139,8 +143,10 @@ export async function getFiles(
 				});
 			}
 		}
-	} catch {
-		// Return empty results on error
+	} catch (err) {
+		this.logger.error('Failed to get files', {
+			error: err instanceof Error ? err.message : String(err),
+		});
 	}
 
 	return { results };
@@ -197,8 +203,10 @@ export async function getSheets(
 				value: worksheet.name,
 			});
 		}
-	} catch {
-		// Return empty results on error
+	} catch (err) {
+		this.logger.error('Failed to get sheets', {
+			error: err instanceof Error ? err.message : String(err),
+		});
 	}
 
 	return { results };
@@ -256,8 +264,10 @@ export async function getTables(
 				value: table.name,
 			});
 		}
-	} catch {
-		// Return empty results on error
+	} catch (err) {
+		this.logger.error('Failed to get tables', {
+			error: err instanceof Error ? err.message : String(err),
+		});
 	}
 
 	return { results };

@@ -38,7 +38,7 @@ export interface OperationContext {
 	operation: Operation;
 	basePath: string;
 	driveId: string;
-	fileId: string;
+	fileId?: string;
 	siteId?: string;
 }
 
