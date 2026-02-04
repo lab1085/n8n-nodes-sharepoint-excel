@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-02-04
+
+### Added
+
+- Data mode pattern for appendRows and upsertRows operations ([ff7bc20](../../commit/ff7bc20))
+- Read options (headerRow, startRow, maxRows) to readRows and getTableRows ([85a0865](../../commit/85a0865))
+- Comprehensive test suite with vitest ([876c357](../../commit/876c357))
+
+### Changed
+
+- Simplified OAuth2 credentials by extending microsoftOAuth2Api ([5de59f1](../../commit/5de59f1))
+
+### Fixed
+
+- Various bug fixes and improved error handling ([876c357](../../commit/876c357))
+
 ## [0.1.1] - 2026-02-03
 
 Initial release of the Microsoft SharePoint Excel node for n8n. This node provides read and write operations for Excel files stored in SharePoint document libraries, bypassing WAC token limitations by using a download-modify-upload pattern with the exceljs library.
