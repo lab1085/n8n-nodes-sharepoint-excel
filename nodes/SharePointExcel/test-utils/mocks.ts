@@ -128,6 +128,7 @@ export function createMockWorksheet(data: MockWorksheetOptions) {
 			if (rowNum === 1) return headerRow;
 			return dataRows[rowNum - 2] || createMockRow({});
 		}),
+		getCell: vi.fn(),
 		spliceRows: vi.fn(),
 		addRow: vi.fn(),
 	};
