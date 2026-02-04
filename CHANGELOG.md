@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0] - 2026-02-03
+## [0.1.1] - 2026-02-03
 
 Initial release of the Microsoft SharePoint Excel node for n8n. This node provides read and write operations for Excel files stored in SharePoint document libraries, bypassing WAC token limitations by using a download-modify-upload pattern with the exceljs library.
 
@@ -58,5 +58,5 @@ Initial release of the Microsoft SharePoint Excel node for n8n. This node provid
 - Renamed node to "Microsoft SharePoint Excel" for better discoverability ([94a9b1a](../../commit/94a9b1a))
 - Replaced Biome with Prettier for code formatting ([faf9745](../../commit/faf9745))
 
-[unreleased]: ../../compare/v0.1.0...HEAD
-[0.1.0]: ../../releases/tag/v0.1.0
+[unreleased]: ../../compare/v0.1.1...HEAD
+[0.1.1]: ../../releases/tag/v0.1.1
