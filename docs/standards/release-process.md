@@ -1,82 +1,58 @@
 # Release Process
 
-This document describes the release workflow for n8n-nodes-sharepoint-excel.
+This document describes the release workflow for `@lab1095/n8n-nodes-sharepoint-excel`.
+
+## Overview
+
+Releases are published to npm using `npm run release`, which wraps `release-it`. The process handles version bumping, changelog generation, git tagging, GitHub releases, and npm publishing in one command.
+
+## Prerequisites
+
+- npm account with access to `@lab1095` org
+- GitHub repo push access
+- Logged into npm (`npm login`)
 
 ## Branch Strategy
 
 - **develop** - Active development branch
-- **main** - Stable release branch, receives squash merges from develop
+- **main** - Stable release branch
 
 ## Release Workflow
 
-### 1. Prepare the Release
+### 1. Prepare for Release
 
-On `develop` branch:
+Ensure all changes are merged to `develop` and tested.
 
-```bash
-# Update CHANGELOG.md with all changes since last release
-# Update version in package.json
-git add CHANGELOG.md package.json
-git commit -m "chore: bump version to vX.Y.Z and update changelog"
-git push origin develop
-```
-
-### 2. Create PR to Main
+### 2. Sync Main with Develop
 
 ```bash
-gh pr create --base main --head develop --title "Release vX.Y.Z" --body "$(cat <<'EOF'
-## Summary
-Release vX.Y.Z
-
-## Changes
-[Copy relevant section from CHANGELOG.md]
-EOF
-)"
+git checkout main
+git pull origin main
+git rebase develop
+git push origin main
 ```
 
-Add label and assignee:
+Note: If push is rejected, use `git push --force-with-lease origin main`.
+
+### 3. Run the Release
 
 ```bash
-gh pr edit --add-assignee @me --add-label "release"
+npm login  # if session expired (tokens last ~12 hours)
+npm run release
 ```
 
-Then **squash merge** the PR via GitHub UI or CLI:
+This will:
 
-```bash
-gh pr merge --squash
-```
-
-### 3. Create the Release
-
-After the PR is merged, create the release from **main** branch:
-
-```bash
-gh release create vX.Y.Z --target main --title "vX.Y.Z" --notes "$(cat <<'EOF'
-> YYYY-MM-DD
-
-## Added
-
-- Feature 1
-- Feature 2
-
-## Fixed
-
-- Fix 1
-- Fix 2
-EOF
-)"
-```
-
-This triggers the GitHub Action that publishes to npm automatically.
-
-Release notes format:
-- Date as blockquote at the top: `> 2026-02-02`
-- Use `## Added`, `## Fixed`, `## Changed` headers
-- Copy content from CHANGELOG.md
+1. Prompt for version increment (patch/minor/major)
+2. Run `npm run lint && npm run build`
+3. Update `CHANGELOG.md` via auto-changelog
+4. Bump version in `package.json`
+5. Create git commit and tag
+6. Push to GitHub
+7. Create GitHub release (opens browser if no GITHUB_TOKEN)
+8. Publish to npm
 
 ### 4. Sync Develop with Main
-
-After the PR is merged:
 
 ```bash
 git checkout develop
@@ -84,7 +60,33 @@ git pull origin main
 git push origin develop
 ```
 
-This merges the squash commit from main into develop, preventing conflicts on the next release.
+## Configuration
+
+### `.npmrc`
+
+```
+access=public
+```
+
+Required for scoped packages (`@lab1095/*`) to publish as public.
+
+### Commit Messages
+
+The release commit must follow conventional commits format. The `n8n-node release` creates commits like `Release X.Y.Z`, but commitlint requires a type prefix. If the commit fails, the package may still be published to npm. Fix manually:
+
+```bash
+# Check npm for published version
+npm view @lab1095/n8n-nodes-sharepoint-excel version
+
+# Update package.json to match, then:
+git add package.json CHANGELOG.md
+git commit -m "chore(release): X.Y.Z"
+git tag vX.Y.Z
+git push origin main --tags
+
+# Create GitHub release
+gh release create vX.Y.Z --target main --title "vX.Y.Z" --notes "..."
+```
 
 ## Version Numbering
 
@@ -94,27 +96,27 @@ Follow [Semantic Versioning](https://semver.org/):
 - **MINOR** (0.X.0) - New features, backwards compatible
 - **PATCH** (0.0.X) - Bug fixes only
 
-## Setup (One-Time)
+## Troubleshooting
 
-### npm Token
-
-1. Create an npm access token at https://www.npmjs.com/settings/lab1085/tokens
-2. Add it as a GitHub secret named `NPM_TOKEN` in your repo settings
-
-### Create Develop Branch
+### "Access token expired or revoked"
 
 ```bash
-git checkout -b develop
-git push -u origin develop
+npm login
 ```
+
+### "402 Payment Required - private packages"
+
+Ensure `.npmrc` has `access=public`.
+
+### Commitlint rejects "Release X.Y.Z"
+
+See "Commit Messages" section above for manual fix.
 
 ## Checklist
 
-- [ ] CHANGELOG.md updated with all changes
-- [ ] Version bumped in package.json
-- [ ] Changes committed and pushed to develop
-- [ ] PR created from develop to main
-- [ ] PR labeled and assigned
-- [ ] PR squash merged
-- [ ] Release created from main (triggers npm publish)
+- [ ] All changes merged to develop
+- [ ] Main rebased on develop
+- [ ] Logged into npm
+- [ ] `npm run release` completed successfully
+- [ ] GitHub release created
 - [ ] Develop synced with main
