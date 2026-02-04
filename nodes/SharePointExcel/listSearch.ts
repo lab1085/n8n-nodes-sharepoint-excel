@@ -59,7 +59,7 @@ export async function searchSites(
 }
 
 /**
- * Get drives for site or OneDrive
+ * Get drives for SharePoint site
  */
 export async function getDrives(
 	this: ILoadOptionsFunctions,

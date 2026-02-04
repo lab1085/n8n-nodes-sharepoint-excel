@@ -17,7 +17,7 @@ import {
 
 export class SharePointExcel implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'SharePoint Excel',
+		displayName: 'Microsoft SharePoint Excel',
 		name: 'sharePointExcel',
 		icon: 'file:excel.svg',
 		group: ['transform'],
@@ -26,7 +26,7 @@ export class SharePointExcel implements INodeType {
 		description:
 			'Read and write Excel files in SharePoint (bypasses WAC token issues).',
 		defaults: {
-			name: 'SharePoint Excel',
+			name: 'Microsoft SharePoint Excel',
 		},
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
