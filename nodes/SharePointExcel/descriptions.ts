@@ -361,6 +361,38 @@ export const tableNameProperty: INodeProperties = {
 	},
 };
 
+// Return All toggle for read operations
+export const returnAllProperty: INodeProperties = {
+	displayName: 'Return All',
+	name: 'returnAll',
+	type: 'boolean',
+	default: true,
+	description: 'Whether to return all results or only up to a given limit',
+	displayOptions: {
+		show: {
+			operation: ['readRows', 'getTableRows'],
+		},
+	},
+};
+
+// Limit (shown when Return All is OFF)
+export const limitProperty: INodeProperties = {
+	displayName: 'Limit',
+	name: 'limit',
+	type: 'number',
+	default: 50,
+	description: 'Max number of results to return',
+	typeOptions: {
+		minValue: 1,
+	},
+	displayOptions: {
+		show: {
+			operation: ['readRows', 'getTableRows'],
+			returnAll: [false],
+		},
+	},
+};
+
 // Options for readRows
 export const readRowsOptions: INodeProperties = {
 	displayName: 'Options',
@@ -375,11 +407,38 @@ export const readRowsOptions: INodeProperties = {
 	},
 	options: [
 		{
+			displayName: 'Data Property',
+			name: 'dataProperty',
+			type: 'string',
+			default: 'data',
+			description: 'Property name to use for the raw data output',
+			displayOptions: {
+				show: {
+					rawData: [true],
+				},
+			},
+		},
+		{
+			displayName: 'Fields',
+			name: 'fields',
+			type: 'string',
+			default: '',
+			placeholder: 'Name, Email, Status',
+			description: 'Comma-separated list of column names to return (empty = all)',
+		},
+		{
 			displayName: 'Header Row',
 			name: 'headerRow',
 			type: 'number',
 			default: 1,
 			description: 'Row number containing headers (1-indexed)',
+		},
+		{
+			displayName: 'RAW Data',
+			name: 'rawData',
+			type: 'boolean',
+			default: false,
+			description: 'Whether to return data as arrays instead of keyed objects',
 		},
 		{
 			displayName: 'Start Row',
@@ -388,12 +447,48 @@ export const readRowsOptions: INodeProperties = {
 			default: 2,
 			description: 'First data row to read (1-indexed)',
 		},
+	],
+};
+
+// Options for getTableRows
+export const getTableRowsOptions: INodeProperties = {
+	displayName: 'Options',
+	name: 'options',
+	type: 'collection',
+	placeholder: 'Add Option',
+	default: {},
+	displayOptions: {
+		show: {
+			operation: ['getTableRows'],
+		},
+	},
+	options: [
 		{
-			displayName: 'Max Rows',
-			name: 'maxRows',
-			type: 'number',
-			default: 0,
-			description: 'Maximum rows to return (0 = all)',
+			displayName: 'RAW Data',
+			name: 'rawData',
+			type: 'boolean',
+			default: false,
+			description: 'Whether to return data as arrays instead of keyed objects',
+		},
+		{
+			displayName: 'Data Property',
+			name: 'dataProperty',
+			type: 'string',
+			default: 'data',
+			description: 'Property name to use for the raw data output',
+			displayOptions: {
+				show: {
+					rawData: [true],
+				},
+			},
+		},
+		{
+			displayName: 'Fields',
+			name: 'fields',
+			type: 'string',
+			default: '',
+			placeholder: 'Name, Email, Status',
+			description: 'Comma-separated list of column names to return (empty = all)',
 		},
 	],
 };
@@ -645,7 +740,10 @@ export const properties: INodeProperties[] = [
 	fileIdProperty,
 	sheetNameProperty,
 	tableNameProperty,
+	returnAllProperty,
+	limitProperty,
 	readRowsOptions,
+	getTableRowsOptions,
 	dataModeProperty,
 	columnsProperty,
 	rowDataProperty,

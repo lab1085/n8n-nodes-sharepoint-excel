@@ -86,7 +86,16 @@ export interface SheetInfo {
 export interface ReadRowsOptions {
 	headerRow?: number;
 	startRow?: number;
-	maxRows?: number;
+	rawData?: boolean;
+	dataProperty?: string;
+	fields?: string;
+}
+
+// Options for getTableRows operation
+export interface GetTableRowsOptions {
+	rawData?: boolean;
+	dataProperty?: string;
+	fields?: string;
 }
 
 // Options for upsertRows operation
