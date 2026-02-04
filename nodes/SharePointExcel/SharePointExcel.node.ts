@@ -20,7 +20,7 @@ export class SharePointExcel implements INodeType {
 		icon: 'file:excel.svg',
 		group: ['transform'],
 		version: 1,
-		subtitle: '={{$parameter["operation"]}}',
+		subtitle: '={{$parameter["resource"] + ": " + $parameter["operation"]}}',
 		description:
 			'Read and write Excel files in SharePoint or OneDrive (bypasses WAC token issues).',
 		defaults: {
@@ -57,39 +57,114 @@ export class SharePointExcel implements INodeType {
 				default: 'sharepoint',
 			},
 
-			// Operation selector
+			// Resource selector
+			{
+				displayName: 'Resource',
+				name: 'resource',
+				type: 'options',
+				noDataExpression: true,
+				options: [
+					{
+						name: 'Sheet',
+						value: 'sheet',
+						description: 'A sheet is a grid of cells which can contain data, tables, charts, etc',
+					},
+					{
+						name: 'Table',
+						value: 'table',
+						description: 'Represents an Excel table',
+					},
+					{
+						name: 'Workbook',
+						value: 'workbook',
+						description: 'A workbook is the top level object which contains one or more worksheets',
+					},
+				],
+				default: 'sheet',
+			},
+
+			// Sheet Operations
 			{
 				displayName: 'Operation',
 				name: 'operation',
 				type: 'options',
 				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['sheet'],
+					},
+				},
 				options: [
 					{
 						name: 'Append Rows',
 						value: 'appendRows',
-						description: 'Add rows to the end of a sheet',
+						description: 'Append rows to the end of a sheet',
 						action: 'Append rows to sheet',
+					},
+					{
+						name: 'Get Rows',
+						value: 'readRows',
+						description: 'Retrieve rows from a sheet',
+						action: 'Get rows from sheet',
 					},
 					{
 						name: 'Get Sheets',
 						value: 'getSheets',
 						description: 'Get list of sheets in the workbook',
-						action: 'Get sheet names',
+						action: 'Get sheets',
 					},
 					{
-						name: 'Read Rows',
-						value: 'readRows',
-						description: 'Read rows from a sheet',
-						action: 'Read rows from sheet',
-					},
-					{
-						name: 'Update Cell',
+						name: 'Update',
 						value: 'updateCell',
-						description: 'Update a specific cell value',
-						action: 'Update cell value',
+						description: 'Update a cell in a sheet',
+						action: 'Update cell in sheet',
 					},
 				],
 				default: 'readRows',
+			},
+
+			// Table Operations (placeholder for future implementation)
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['table'],
+					},
+				},
+				options: [
+					{
+						name: 'Get Rows',
+						value: 'getTableRows',
+						description: 'Retrieve rows from a table',
+						action: 'Get rows from table',
+					},
+				],
+				default: 'getTableRows',
+			},
+
+			// Workbook Operations (placeholder for future implementation)
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['workbook'],
+					},
+				},
+				options: [
+					{
+						name: 'Get Sheets',
+						value: 'getWorkbookSheets',
+						description: 'Get list of sheets in the workbook',
+						action: 'Get sheets from workbook',
+					},
+				],
+				default: 'getWorkbookSheets',
 			},
 
 			// Site ID - SharePoint only (resourceLocator with search)
@@ -244,6 +319,9 @@ export class SharePointExcel implements INodeType {
 					},
 				],
 				displayOptions: {
+					show: {
+						resource: ['sheet'],
+					},
 					hide: {
 						operation: ['getSheets'],
 					},
@@ -822,6 +900,32 @@ export class SharePointExcel implements INodeType {
 						sheet: sheetName,
 					},
 				});
+			}
+
+			// Table operations (placeholder)
+			if (operation === 'getTableRows') {
+				throw new NodeOperationError(
+					this.getNode(),
+					'Table operations are not yet implemented',
+					{ description: 'This feature is planned for a future release' },
+				);
+			}
+
+			// Workbook operations (placeholder)
+			if (operation === 'getWorkbookSheets') {
+				// Reuse the same logic as getSheets
+				const buffer = await downloadExcel();
+				const workbook = new ExcelJS.Workbook();
+				await workbook.xlsx.load(buffer);
+
+				const sheets = workbook.worksheets.map((ws) => ({
+					name: ws.name,
+					id: ws.id,
+					rowCount: ws.rowCount,
+					columnCount: ws.columnCount,
+				}));
+
+				returnData.push({ json: { sheets } });
 			}
 		} catch (err) {
 			// Re-throw NodeOperationError as-is to preserve error details
