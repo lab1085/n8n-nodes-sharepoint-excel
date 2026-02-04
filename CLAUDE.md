@@ -45,7 +45,6 @@ fix(auth): handle token refresh error
 ### Supported Sources
 
 - **SharePoint** - Excel files in SharePoint document libraries
-- **OneDrive** - Excel files in OneDrive
 
 ### How It Works
 
@@ -56,10 +55,9 @@ The node uses a download-modify-upload pattern (bypasses WAC token issues):
 3. Performs operation (read/write)
 4. Uploads modified file back (`PUT .../content`)
 
-API endpoints by source:
+API endpoint:
 
 - SharePoint: `/sites/{siteId}/drives/{driveId}/items/{fileId}/content`
-- OneDrive: `/drives/{driveId}/items/{fileId}/content`
 
 ### Operations
 

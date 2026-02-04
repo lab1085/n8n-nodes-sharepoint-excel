@@ -67,22 +67,15 @@ export async function getDrives(
 	const results: INodeListSearchItems[] = [];
 
 	try {
-		const source = this.getNodeParameter('source') as string;
-		let endpoint: string;
+		const siteIdParam = this.getNodeParameter('siteId') as
+			| string
+			| ResourceLocatorValue;
+		const siteId = getResourceValue(siteIdParam);
 
-		if (source === 'sharepoint') {
-			const siteIdParam = this.getNodeParameter('siteId') as
-				| string
-				| ResourceLocatorValue;
-			const siteId = getResourceValue(siteIdParam);
-
-			if (!siteId) {
-				return { results };
-			}
-			endpoint = `${GRAPH_BASE_URL}/sites/${siteId}/drives`;
-		} else {
-			endpoint = `${GRAPH_BASE_URL}/me/drives`;
+		if (!siteId) {
+			return { results };
 		}
+		const endpoint = `${GRAPH_BASE_URL}/sites/${siteId}/drives`;
 
 		const response = await this.helpers.httpRequestWithAuthentication.call(
 			this,
@@ -162,7 +155,6 @@ export async function getSheets(
 	const results: INodeListSearchItems[] = [];
 
 	try {
-		const source = this.getNodeParameter('source') as string;
 		const driveIdParam = this.getNodeParameter('driveId') as
 			| string
 			| ResourceLocatorValue;
@@ -176,17 +168,12 @@ export async function getSheets(
 			return { results };
 		}
 
-		// Build endpoint based on source
-		let endpoint: string;
-		if (source === 'sharepoint') {
-			const siteIdParam = this.getNodeParameter('siteId') as
-				| string
-				| ResourceLocatorValue;
-			const siteId = getResourceValue(siteIdParam);
-			endpoint = `${GRAPH_BASE_URL}/sites/${siteId}/drives/${driveId}/items/${fileId}/content`;
-		} else {
-			endpoint = `${GRAPH_BASE_URL}/drives/${driveId}/items/${fileId}/content`;
-		}
+		// Build endpoint for SharePoint
+		const siteIdParam = this.getNodeParameter('siteId') as
+			| string
+			| ResourceLocatorValue;
+		const siteId = getResourceValue(siteIdParam);
+		const endpoint = `${GRAPH_BASE_URL}/sites/${siteId}/drives/${driveId}/items/${fileId}/content`;
 
 		// Download the file
 		const response = await this.helpers.httpRequestWithAuthentication.call(
@@ -227,7 +214,6 @@ export async function getTables(
 	const results: INodeListSearchItems[] = [];
 
 	try {
-		const source = this.getNodeParameter('source') as string;
 		const driveIdParam = this.getNodeParameter('driveId') as
 			| string
 			| ResourceLocatorValue;
@@ -241,17 +227,12 @@ export async function getTables(
 			return { results };
 		}
 
-		// Build endpoint based on source - use workbook/tables API
-		let endpoint: string;
-		if (source === 'sharepoint') {
-			const siteIdParam = this.getNodeParameter('siteId') as
-				| string
-				| ResourceLocatorValue;
-			const siteId = getResourceValue(siteIdParam);
-			endpoint = `${GRAPH_BASE_URL}/sites/${siteId}/drives/${driveId}/items/${fileId}/workbook/tables`;
-		} else {
-			endpoint = `${GRAPH_BASE_URL}/drives/${driveId}/items/${fileId}/workbook/tables`;
-		}
+		// Build endpoint for SharePoint - use workbook/tables API
+		const siteIdParam = this.getNodeParameter('siteId') as
+			| string
+			| ResourceLocatorValue;
+		const siteId = getResourceValue(siteIdParam);
+		const endpoint = `${GRAPH_BASE_URL}/sites/${siteId}/drives/${driveId}/items/${fileId}/workbook/tables`;
 
 		// Get tables via Graph API
 		const response = await this.helpers.httpRequestWithAuthentication.call(

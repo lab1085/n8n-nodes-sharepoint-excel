@@ -24,7 +24,7 @@ export class SharePointExcel implements INodeType {
 		version: 1,
 		subtitle: '={{$parameter["resource"] + ": " + $parameter["operation"]}}',
 		description:
-			'Read and write Excel files in SharePoint or OneDrive (bypasses WAC token issues).',
+			'Read and write Excel files in SharePoint (bypasses WAC token issues).',
 		defaults: {
 			name: 'SharePoint Excel',
 		},

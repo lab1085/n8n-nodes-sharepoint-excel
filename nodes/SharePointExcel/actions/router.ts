@@ -11,7 +11,7 @@ import * as table from './table';
 export function buildContext(
 	executeFunctions: IExecuteFunctions,
 ): OperationContext {
-	const source = executeFunctions.getNodeParameter('source', 0) as 'sharepoint' | 'onedrive';
+	const source = executeFunctions.getNodeParameter('source', 0) as 'sharepoint';
 	const resource = executeFunctions.getNodeParameter('resource', 0) as Resource;
 	const operation = executeFunctions.getNodeParameter('operation', 0) as Operation;
 
@@ -27,20 +27,12 @@ export function buildContext(
 	const fileId =
 		typeof fileIdParam === 'object' ? fileIdParam.value : fileIdParam;
 
-	// Build base path based on source
-	let basePath: string;
-	let siteId: string | undefined;
-
-	if (source === 'sharepoint') {
-		const siteIdParam = executeFunctions.getNodeParameter('siteId', 0) as
-			| string
-			| ResourceLocatorValue;
-		siteId = typeof siteIdParam === 'object' ? siteIdParam.value : siteIdParam;
-		basePath = `/sites/${siteId}/drives/${driveId}/items/${fileId}`;
-	} else {
-		// OneDrive - uses drive directly
-		basePath = `/drives/${driveId}/items/${fileId}`;
-	}
+	// Build base path for SharePoint
+	const siteIdParam = executeFunctions.getNodeParameter('siteId', 0) as
+		| string
+		| ResourceLocatorValue;
+	const siteId = typeof siteIdParam === 'object' ? siteIdParam.value : siteIdParam;
+	const basePath = `/sites/${siteId}/drives/${driveId}/items/${fileId}`;
 
 	return {
 		source,

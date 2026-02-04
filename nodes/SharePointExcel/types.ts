@@ -7,7 +7,7 @@ export interface ResourceLocatorValue {
 }
 
 // Sources supported by this node
-export type Source = 'sharepoint' | 'onedrive';
+export type Source = 'sharepoint';
 
 // Resources available
 export type Resource = 'sheet' | 'table' | 'workbook';

@@ -12,11 +12,6 @@ export const sourceProperty: INodeProperties = {
 			value: 'sharepoint',
 			description: 'Excel file stored in a SharePoint document library',
 		},
-		{
-			name: 'OneDrive',
-			value: 'onedrive',
-			description: 'Excel file stored in OneDrive',
-		},
 	],
 	default: 'sharepoint',
 };
