@@ -1,21 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-// Source selector
-export const sourceProperty: INodeProperties = {
-	displayName: 'Source',
-	name: 'source',
-	type: 'options',
-	noDataExpression: true,
-	options: [
-		{
-			name: 'SharePoint',
-			value: 'sharepoint',
-			description: 'Excel file stored in a SharePoint document library',
-		},
-	],
-	default: 'sharepoint',
-};
-
 // Resource selector
 export const resourceProperty: INodeProperties = {
 	displayName: 'Resource',
@@ -174,7 +158,7 @@ export const sheetOperations: INodeProperties = {
 	default: 'readRows',
 };
 
-// Site ID - SharePoint only (resourceLocator with search)
+// Site ID (resourceLocator with search)
 export const siteIdProperty: INodeProperties = {
 	displayName: 'Site',
 	name: 'siteId',
@@ -182,11 +166,6 @@ export const siteIdProperty: INodeProperties = {
 	required: true,
 	default: { mode: 'list', value: '' },
 	description: 'The SharePoint site',
-	displayOptions: {
-		show: {
-			source: ['sharepoint'],
-		},
-	},
 	modes: [
 		{
 			displayName: 'From List',
@@ -560,7 +539,6 @@ export const lookupValueProperty: INodeProperties = {
 
 // All properties in order
 export const properties: INodeProperties[] = [
-	sourceProperty,
 	resourceProperty,
 	tableOperations,
 	workbookOperations,
