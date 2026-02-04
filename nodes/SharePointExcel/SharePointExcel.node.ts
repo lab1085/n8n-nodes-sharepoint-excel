@@ -344,17 +344,15 @@ export class SharePointExcel implements INodeType {
 			): Promise<INodeListSearchResult> {
 				const results: INodeListSearchItems[] = [];
 
-				if (!filter || filter.trim() === '') {
-					return { results };
-				}
-
 				try {
+					// Use wildcard '*' to list all sites when no filter provided
+					const searchTerm = filter?.trim() || '*';
 					const response = await this.helpers.httpRequestWithAuthentication.call(
 						this,
 						'microsoftGraphOAuth2Api',
 						{
 							method: 'GET',
-							url: `https://graph.microsoft.com/v1.0/sites?search=${encodeURIComponent(filter)}`,
+							url: `https://graph.microsoft.com/v1.0/sites?search=${encodeURIComponent(searchTerm)}`,
 							json: true,
 						},
 					);
