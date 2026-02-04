@@ -97,3 +97,25 @@ export interface UpsertRowsOptions {
 
 // Row data type
 export type RowData = IDataObject;
+
+// Data input modes for append/upsert operations
+export type DataMode = 'autoMap' | 'manual' | 'raw';
+
+// Resource mapper value from n8n UI
+export interface ResourceMapperValue {
+	mappingMode: 'defineBelow' | 'autoMapInputData';
+	value: Record<string, unknown> | null;
+	matchingColumns?: string[];
+	schema?: ResourceMapperField[];
+}
+
+// Resource mapper field schema
+export interface ResourceMapperField {
+	id: string;
+	displayName: string;
+	required: boolean;
+	defaultMatch: boolean;
+	display: boolean;
+	type: 'string' | 'number' | 'boolean' | 'dateTime';
+	canBeUsedToMatch: boolean;
+}

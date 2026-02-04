@@ -398,7 +398,70 @@ export const readRowsOptions: INodeProperties = {
 	],
 };
 
-// Row data for appendRows
+// Data mode selector for appendRows and upsertRows
+export const dataModeProperty: INodeProperties = {
+	displayName: 'Data Mode',
+	name: 'dataMode',
+	type: 'options',
+	default: 'autoMap',
+	description: 'How to provide row data',
+	options: [
+		{
+			name: 'Auto-Map Input Data to Columns',
+			value: 'autoMap',
+			description: 'Input JSON properties matched to column headers by name',
+		},
+		{
+			name: 'Map Each Column Below',
+			value: 'manual',
+			description: 'Manually map each column with the resourceMapper UI',
+		},
+		{
+			name: 'Raw',
+			value: 'raw',
+			description: 'Provide JSON data directly (backward compatible)',
+		},
+	],
+	displayOptions: {
+		show: {
+			operation: ['appendRows', 'upsertRows'],
+		},
+	},
+};
+
+// Resource mapper for manual column mapping
+export const columnsProperty: INodeProperties = {
+	displayName: 'Columns',
+	name: 'columns',
+	type: 'resourceMapper',
+	noDataExpression: true,
+	default: {
+		mappingMode: 'defineBelow',
+		value: null,
+	},
+	required: true,
+	typeOptions: {
+		loadOptionsDependsOn: ['siteId.value', 'driveId.value', 'fileId.value', 'sheetName.value', 'options.headerRow'],
+		resourceMapper: {
+			resourceMapperMethod: 'getMappingColumns',
+			mode: 'upsert',
+			fieldWords: {
+				singular: 'column',
+				plural: 'columns',
+			},
+			addAllFields: true,
+			multiKeyMatch: false,
+		},
+	},
+	displayOptions: {
+		show: {
+			operation: ['appendRows', 'upsertRows'],
+			dataMode: ['manual'],
+		},
+	},
+};
+
+// Row data for appendRows (raw mode only)
 export const rowDataProperty: INodeProperties = {
 	displayName: 'Row Data',
 	name: 'rowData',
@@ -410,8 +473,32 @@ export const rowDataProperty: INodeProperties = {
 	displayOptions: {
 		show: {
 			operation: ['appendRows'],
+			dataMode: ['raw'],
 		},
 	},
+};
+
+// Options for appendRows
+export const appendRowsOptions: INodeProperties = {
+	displayName: 'Options',
+	name: 'options',
+	type: 'collection',
+	placeholder: 'Add Option',
+	default: {},
+	displayOptions: {
+		show: {
+			operation: ['appendRows'],
+		},
+	},
+	options: [
+		{
+			displayName: 'Header Row',
+			name: 'headerRow',
+			type: 'number',
+			default: 1,
+			description: 'Row number containing headers (1-indexed)',
+		},
+	],
 };
 
 // Cell reference for updateCell
@@ -445,7 +532,7 @@ export const cellValueProperty: INodeProperties = {
 	},
 };
 
-// Row data for upsertRows
+// Row data for upsertRows (raw mode only)
 export const upsertRowDataProperty: INodeProperties = {
 	displayName: 'Row Data',
 	name: 'rowData',
@@ -457,6 +544,23 @@ export const upsertRowDataProperty: INodeProperties = {
 	displayOptions: {
 		show: {
 			operation: ['upsertRows'],
+			dataMode: ['raw'],
+		},
+	},
+};
+
+// Key column for upsertRows (raw and autoMap modes)
+export const keyColumnProperty: INodeProperties = {
+	displayName: 'Key Column',
+	name: 'keyColumn',
+	type: 'string',
+	default: '',
+	required: true,
+	description: 'Column name to use as the unique key for matching rows',
+	displayOptions: {
+		show: {
+			operation: ['upsertRows'],
+			dataMode: ['raw', 'autoMap'],
 		},
 	},
 };
@@ -474,13 +578,6 @@ export const upsertRowsOptions: INodeProperties = {
 		},
 	},
 	options: [
-		{
-			displayName: 'Key Column',
-			name: 'keyColumn',
-			type: 'string',
-			default: '',
-			description: 'Column name to use as the unique key for matching rows',
-		},
 		{
 			displayName: 'Header Row',
 			name: 'headerRow',
@@ -549,8 +646,12 @@ export const properties: INodeProperties[] = [
 	sheetNameProperty,
 	tableNameProperty,
 	readRowsOptions,
+	dataModeProperty,
+	columnsProperty,
 	rowDataProperty,
+	appendRowsOptions,
 	upsertRowDataProperty,
+	keyColumnProperty,
 	upsertRowsOptions,
 	cellRefProperty,
 	cellValueProperty,

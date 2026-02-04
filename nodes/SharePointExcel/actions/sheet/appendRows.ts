@@ -1,7 +1,69 @@
 import type { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getWorksheet, loadWorkbook, saveWorkbook } from '../../api';
-import type { OperationContext, ResourceLocatorValue, RowData } from '../../types';
+import type {
+	DataMode,
+	OperationContext,
+	ResourceLocatorValue,
+	ResourceMapperValue,
+	RowData,
+} from '../../types';
+
+interface AppendOptions {
+	headerRow?: number;
+}
+
+/**
+ * Extract row data based on the selected data mode
+ */
+function getRowData(
+	context: IExecuteFunctions,
+	itemIndex: number,
+	item: INodeExecutionData,
+	dataMode: DataMode,
+): RowData[] {
+	switch (dataMode) {
+		case 'autoMap': {
+			// Use input JSON directly
+			return [item.json as RowData];
+		}
+		case 'manual': {
+			// Get from resourceMapper
+			const columns = context.getNodeParameter(
+				'columns',
+				itemIndex,
+			) as ResourceMapperValue;
+			if (!columns.value || Object.keys(columns.value).length === 0) {
+				throw new NodeOperationError(
+					context.getNode(),
+					'No column values provided in manual mapping mode',
+					{ itemIndex },
+				);
+			}
+			return [columns.value as RowData];
+		}
+		case 'raw': {
+			// Parse JSON from rowData parameter
+			const rowDataParam = context.getNodeParameter('rowData', itemIndex) as string;
+			try {
+				const parsed = JSON.parse(rowDataParam);
+				return Array.isArray(parsed) ? parsed : [parsed];
+			} catch (err) {
+				throw new NodeOperationError(
+					context.getNode(),
+					`Invalid JSON in Row Data: ${(err as Error).message}`,
+					{ itemIndex },
+				);
+			}
+		}
+		default:
+			throw new NodeOperationError(
+				context.getNode(),
+				`Unknown data mode: ${dataMode}`,
+				{ itemIndex },
+			);
+	}
+}
 
 export async function execute(
 	this: IExecuteFunctions,
@@ -16,47 +78,42 @@ export async function execute(
 	const sheetName =
 		typeof sheetNameParam === 'object' ? sheetNameParam.value : sheetNameParam;
 
+	const dataMode = this.getNodeParameter('dataMode', 0, 'autoMap') as DataMode;
+	const options = this.getNodeParameter('options', 0, {}) as AppendOptions;
+	const headerRow = options.headerRow || 1;
+
+	// Download workbook once
+	const workbook = await loadWorkbook.call(this, context.basePath);
+	const worksheet = getWorksheet(workbook, sheetName, this, 0);
+
+	// Get existing headers
+	const headers: string[] = [];
+	const headerRowData = worksheet.getRow(headerRow);
+	headerRowData.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+		headers[colNumber] = String(cell.value);
+	});
+
+	// Check if headers exist
+	const hasHeaders = headers.some((h) => h && h.trim() !== '');
+	const headerMap: Record<string, number> = {};
+
+	// Track total rows added
+	let totalRowsAdded = 0;
+
 	// Process each input item
 	for (let i = 0; i < items.length; i++) {
-		const rowDataParam = this.getNodeParameter('rowData', i) as string;
-		let rowsToAdd: RowData[];
+		const rowsToAdd = getRowData(this, i, items[i], dataMode);
 
-		try {
-			const parsed = JSON.parse(rowDataParam);
-			rowsToAdd = Array.isArray(parsed) ? parsed : [parsed];
-		} catch (err) {
-			throw new NodeOperationError(
-				this.getNode(),
-				`Invalid JSON in Row Data: ${(err as Error).message}`,
-				{ itemIndex: i },
-			);
-		}
-
-		// Download current file
-		const workbook = await loadWorkbook.call(this, context.basePath);
-		const worksheet = getWorksheet(workbook, sheetName, this, i);
-
-		// Get existing headers from row 1
-		const headers: string[] = [];
-		const headerRow = worksheet.getRow(1);
-		headerRow.eachCell({ includeEmpty: false }, (cell, colNumber) => {
-			headers[colNumber] = String(cell.value);
-		});
-
-		// Check if headers exist, if not create them from the first row's keys
-		const hasHeaders = headers.some((h) => h && h.trim() !== '');
-		const headerMap: Record<string, number> = {};
-
-		if (!hasHeaders && rowsToAdd.length > 0) {
-			// Create headers from the keys of the first row
+		// If no headers yet, create them from the first row's keys
+		if (!hasHeaders && i === 0 && rowsToAdd.length > 0) {
 			const keys = Object.keys(rowsToAdd[0]);
 			keys.forEach((key, idx) => {
 				const colNumber = idx + 1; // Excel columns are 1-indexed
-				headerRow.getCell(colNumber).value = key;
+				headerRowData.getCell(colNumber).value = key;
 				headers[colNumber] = key;
 				headerMap[key] = colNumber;
 			});
-		} else {
+		} else if (i === 0) {
 			// Build header-to-column map from existing headers
 			headers.forEach((h, idx) => {
 				if (h) headerMap[h] = idx;
@@ -73,19 +130,20 @@ export async function execute(
 				}
 			}
 			worksheet.addRow(newRow);
+			totalRowsAdded++;
 		}
-
-		// Upload back
-		await saveWorkbook.call(this, context.basePath, workbook);
-
-		returnData.push({
-			json: {
-				success: true,
-				rowsAdded: rowsToAdd.length,
-				sheet: sheetName,
-			} as IDataObject,
-		});
 	}
+
+	// Upload back once
+	await saveWorkbook.call(this, context.basePath, workbook);
+
+	returnData.push({
+		json: {
+			success: true,
+			rowsAdded: totalRowsAdded,
+			sheet: sheetName,
+		} as IDataObject,
+	});
 
 	return returnData;
 }

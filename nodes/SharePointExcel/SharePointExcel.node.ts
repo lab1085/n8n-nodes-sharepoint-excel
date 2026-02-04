@@ -14,6 +14,7 @@ import {
 	getSheets,
 	getTables,
 } from './listSearch';
+import { getMappingColumns } from './resourceMapping';
 
 export class SharePointExcel implements INodeType {
 	description: INodeTypeDescription = {
@@ -47,6 +48,9 @@ export class SharePointExcel implements INodeType {
 			getFiles,
 			getSheets,
 			getTables,
+		},
+		resourceMapping: {
+			getMappingColumns,
 		},
 	};
 
