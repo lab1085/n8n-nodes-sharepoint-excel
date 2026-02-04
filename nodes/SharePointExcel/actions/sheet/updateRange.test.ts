@@ -179,9 +179,9 @@ describe('updateRange', () => {
 				);
 			});
 
-			await expect(
-				execute.call(mockFunctions, [{ json: {} }], context),
-			).rejects.toThrow('Sheet "NonExistent" not found in workbook');
+			await expect(execute.call(mockFunctions, [{ json: {} }], context)).rejects.toThrow(
+				'Sheet "NonExistent" not found in workbook',
+			);
 		});
 
 		it('throws error when loadWorkbook fails', async () => {
@@ -193,15 +193,12 @@ describe('updateRange', () => {
 			const context = createMockContext({ operation: 'updateCell' });
 
 			vi.mocked(loadWorkbook).mockRejectedValue(
-				new NodeOperationError(
-					mockFunctions.getNode(),
-					'Graph API request failed: Access denied',
-				),
+				new NodeOperationError(mockFunctions.getNode(), 'Graph API request failed: Access denied'),
 			);
 
-			await expect(
-				execute.call(mockFunctions, [{ json: {} }], context),
-			).rejects.toThrow('Graph API request failed: Access denied');
+			await expect(execute.call(mockFunctions, [{ json: {} }], context)).rejects.toThrow(
+				'Graph API request failed: Access denied',
+			);
 		});
 
 		it('throws error when saveWorkbook fails', async () => {
@@ -221,15 +218,12 @@ describe('updateRange', () => {
 			const context = createMockContext({ operation: 'updateCell' });
 
 			vi.mocked(saveWorkbook).mockRejectedValue(
-				new NodeOperationError(
-					mockFunctions.getNode(),
-					'Graph API request failed: File is locked',
-				),
+				new NodeOperationError(mockFunctions.getNode(), 'Graph API request failed: File is locked'),
 			);
 
-			await expect(
-				execute.call(mockFunctions, [{ json: {} }], context),
-			).rejects.toThrow('Graph API request failed: File is locked');
+			await expect(execute.call(mockFunctions, [{ json: {} }], context)).rejects.toThrow(
+				'Graph API request failed: File is locked',
+			);
 		});
 	});
 });

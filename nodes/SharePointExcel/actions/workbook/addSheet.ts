@@ -11,10 +11,7 @@ export async function execute(
 	const newSheetName = this.getNodeParameter('newSheetName', 0) as string;
 
 	if (!newSheetName || newSheetName.trim() === '') {
-		throw new NodeOperationError(
-			this.getNode(),
-			'Sheet name cannot be empty',
-		);
+		throw new NodeOperationError(this.getNode(), 'Sheet name cannot be empty');
 	}
 
 	const workbook = await loadWorkbook.call(this, context.basePath);

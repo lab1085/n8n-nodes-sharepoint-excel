@@ -21,32 +21,32 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ### Sheet
 
-| Operation | Description |
-|-----------|-------------|
-| **Get Sheets** | List all worksheets in the workbook |
-| **Get Rows** | Read rows from a sheet with configurable header row and start row |
-| **Append Rows** | Add new rows to the end of a sheet |
-| **Update** | Update a specific cell by reference (e.g., A1, B5) |
-| **Upsert Rows** | Insert or update rows based on a key column |
-| **Clear** | Clear all data from a sheet |
-| **Delete** | Delete a sheet from the workbook |
+| Operation       | Description                                                       |
+| --------------- | ----------------------------------------------------------------- |
+| **Get Sheets**  | List all worksheets in the workbook                               |
+| **Get Rows**    | Read rows from a sheet with configurable header row and start row |
+| **Append Rows** | Add new rows to the end of a sheet                                |
+| **Update**      | Update a specific cell by reference (e.g., A1, B5)                |
+| **Upsert Rows** | Insert or update rows based on a key column                       |
+| **Clear**       | Clear all data from a sheet                                       |
+| **Delete**      | Delete a sheet from the workbook                                  |
 
 ### Table
 
-| Operation | Description |
-|-----------|-------------|
-| **Get Rows** | Retrieve all rows from an Excel table |
-| **Get Columns** | Get column definitions from a table |
-| **Lookup** | Find a row by column value |
+| Operation       | Description                           |
+| --------------- | ------------------------------------- |
+| **Get Rows**    | Retrieve all rows from an Excel table |
+| **Get Columns** | Get column definitions from a table   |
+| **Lookup**      | Find a row by column value            |
 
 ### Workbook
 
-| Operation | Description |
-|-----------|-------------|
-| **Get Sheets** | List all sheets in the workbook |
-| **Add Sheet** | Create a new sheet in the workbook |
-| **Delete** | Delete the workbook file |
-| **Get Workbooks** | List all Excel files in the drive |
+| Operation         | Description                        |
+| ----------------- | ---------------------------------- |
+| **Get Sheets**    | List all sheets in the workbook    |
+| **Add Sheet**     | Create a new sheet in the workbook |
+| **Delete**        | Delete the workbook file           |
+| **Get Workbooks** | List all Excel files in the drive  |
 
 ## Credentials
 
@@ -101,12 +101,14 @@ This node takes a different approach: it **downloads the entire Excel file**, mo
 ### Finding Required IDs
 
 The node provides searchable dropdowns to select:
+
 - **Site** - Your SharePoint site
 - **Drive** - The document library containing the file
 - **File** - The Excel file to operate on
 - **Sheet/Table** - The specific sheet or table within the file
 
 You can also enter IDs manually:
+
 - **Site ID** format: `contoso.sharepoint.com,site-guid,web-guid`
 - **Drive ID** format: `b!xxxxx...`
 - **File ID** format: Item ID from SharePoint
@@ -114,6 +116,7 @@ You can also enter IDs manually:
 ### Reading Data
 
 When reading rows, you can configure:
+
 - **Header Row** - Which row contains column headers (default: 1)
 - **Start Row** - First data row to read (default: 2)
 - **Max Rows** - Limit the number of rows returned (0 = all)
@@ -121,6 +124,7 @@ When reading rows, you can configure:
 ### Writing Data
 
 When appending or upserting rows:
+
 - Provide data as a JSON object with column headers as keys
 - For multiple rows, provide an array of objects
 - The node automatically matches columns to existing headers

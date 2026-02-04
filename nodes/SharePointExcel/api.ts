@@ -11,8 +11,7 @@ import type { GraphError } from './types';
 const GRAPH_BASE_URL = 'https://graph.microsoft.com/v1.0';
 const CREDENTIAL_NAME = 'microsoftGraphOAuth2Api';
 const REQUEST_TIMEOUT = 30000;
-const EXCEL_CONTENT_TYPE =
-	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+const EXCEL_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
 /**
  * Make a Graph API request
@@ -43,11 +42,7 @@ export async function graphRequest(
 				json: false,
 			};
 			// eslint-disable-next-line @n8n/community-nodes/no-deprecated-workflow-functions
-			response = await this.helpers.requestOAuth2.call(
-				this,
-				CREDENTIAL_NAME,
-				options,
-			);
+			response = await this.helpers.requestOAuth2.call(this, CREDENTIAL_NAME, options);
 		} else if (isBuffer && method === 'GET') {
 			// Use httpRequestWithAuthentication for downloads
 			const options: IHttpRequestOptions = {
@@ -98,27 +93,15 @@ export async function graphRequest(
 		}
 		// Wrap other errors
 		const error = err as Error;
-		throw new NodeOperationError(
-			this.getNode(),
-			`Graph API request failed: ${error.message}`,
-		);
+		throw new NodeOperationError(this.getNode(), `Graph API request failed: ${error.message}`);
 	}
 }
 
 /**
  * Download Excel file as ArrayBuffer
  */
-export async function download(
-	this: IExecuteFunctions,
-	basePath: string,
-): Promise<ArrayBuffer> {
-	const response = await graphRequest.call(
-		this,
-		'GET',
-		`${basePath}/content`,
-		undefined,
-		true,
-	);
+export async function download(this: IExecuteFunctions, basePath: string): Promise<ArrayBuffer> {
+	const response = await graphRequest.call(this, 'GET', `${basePath}/content`, undefined, true);
 	return response as ArrayBuffer;
 }
 
@@ -182,10 +165,7 @@ export function getWorksheet(
 /**
  * Delete a file via Graph API
  */
-export async function deleteFile(
-	this: IExecuteFunctions,
-	basePath: string,
-): Promise<void> {
+export async function deleteFile(this: IExecuteFunctions, basePath: string): Promise<void> {
 	await graphRequest.call(this, 'DELETE', basePath);
 }
 

@@ -1,9 +1,4 @@
-import type {
-	ICredentialTestRequest,
-	ICredentialType,
-	INodeProperties,
-	Icon,
-} from 'n8n-workflow';
+import type { ICredentialTestRequest, ICredentialType, INodeProperties, Icon } from 'n8n-workflow';
 
 export class MicrosoftGraphOAuth2Api implements ICredentialType {
 	name = 'microsoftGraphOAuth2Api';
@@ -12,8 +7,7 @@ export class MicrosoftGraphOAuth2Api implements ICredentialType {
 
 	displayName = 'Microsoft Graph OAuth2 API';
 
-	documentationUrl =
-		'https://learn.microsoft.com/en-us/graph/auth-v2-user';
+	documentationUrl = 'https://learn.microsoft.com/en-us/graph/auth-v2-user';
 
 	icon: Icon = 'file:icons/Microsoft.svg';
 

@@ -4,12 +4,7 @@ import type {
 	INodeListSearchItems,
 	INodeListSearchResult,
 } from 'n8n-workflow';
-import type {
-	GraphDrive,
-	GraphDriveItem,
-	GraphSite,
-	ResourceLocatorValue,
-} from './types';
+import type { GraphDrive, GraphDriveItem, GraphSite, ResourceLocatorValue } from './types';
 
 const GRAPH_BASE_URL = 'https://graph.microsoft.com/v1.0';
 const CREDENTIAL_NAME = 'microsoftGraphOAuth2Api';
@@ -33,15 +28,11 @@ export async function searchSites(
 	try {
 		// Use wildcard '*' to list all sites when no filter provided
 		const searchTerm = filter?.trim() || '*';
-		const response = await this.helpers.httpRequestWithAuthentication.call(
-			this,
-			CREDENTIAL_NAME,
-			{
-				method: 'GET',
-				url: `${GRAPH_BASE_URL}/sites?search=${encodeURIComponent(searchTerm)}`,
-				json: true,
-			},
-		);
+		const response = await this.helpers.httpRequestWithAuthentication.call(this, CREDENTIAL_NAME, {
+			method: 'GET',
+			url: `${GRAPH_BASE_URL}/sites?search=${encodeURIComponent(searchTerm)}`,
+			json: true,
+		});
 
 		const sites = (response as { value?: GraphSite[] }).value || [];
 		for (const site of sites) {
@@ -63,15 +54,11 @@ export async function searchSites(
 /**
  * Get drives for SharePoint site
  */
-export async function getDrives(
-	this: ILoadOptionsFunctions,
-): Promise<INodeListSearchResult> {
+export async function getDrives(this: ILoadOptionsFunctions): Promise<INodeListSearchResult> {
 	const results: INodeListSearchItems[] = [];
 
 	try {
-		const siteIdParam = this.getNodeParameter('siteId') as
-			| string
-			| ResourceLocatorValue;
+		const siteIdParam = this.getNodeParameter('siteId') as string | ResourceLocatorValue;
 		const siteId = getResourceValue(siteIdParam);
 
 		if (!siteId) {
@@ -79,15 +66,11 @@ export async function getDrives(
 		}
 		const endpoint = `${GRAPH_BASE_URL}/sites/${siteId}/drives`;
 
-		const response = await this.helpers.httpRequestWithAuthentication.call(
-			this,
-			CREDENTIAL_NAME,
-			{
-				method: 'GET',
-				url: endpoint,
-				json: true,
-			},
-		);
+		const response = await this.helpers.httpRequestWithAuthentication.call(this, CREDENTIAL_NAME, {
+			method: 'GET',
+			url: endpoint,
+			json: true,
+		});
 
 		const drives = (response as { value?: GraphDrive[] }).value || [];
 		for (const drive of drives) {
@@ -108,30 +91,22 @@ export async function getDrives(
 /**
  * Get Excel files in drive
  */
-export async function getFiles(
-	this: ILoadOptionsFunctions,
-): Promise<INodeListSearchResult> {
+export async function getFiles(this: ILoadOptionsFunctions): Promise<INodeListSearchResult> {
 	const results: INodeListSearchItems[] = [];
 
 	try {
-		const driveIdParam = this.getNodeParameter('driveId') as
-			| string
-			| ResourceLocatorValue;
+		const driveIdParam = this.getNodeParameter('driveId') as string | ResourceLocatorValue;
 		const driveId = getResourceValue(driveIdParam);
 
 		if (!driveId) {
 			return { results };
 		}
 
-		const response = await this.helpers.httpRequestWithAuthentication.call(
-			this,
-			CREDENTIAL_NAME,
-			{
-				method: 'GET',
-				url: `${GRAPH_BASE_URL}/drives/${driveId}/root/children`,
-				json: true,
-			},
-		);
+		const response = await this.helpers.httpRequestWithAuthentication.call(this, CREDENTIAL_NAME, {
+			method: 'GET',
+			url: `${GRAPH_BASE_URL}/drives/${driveId}/root/children`,
+			json: true,
+		});
 
 		const items = (response as { value?: GraphDriveItem[] }).value || [];
 		for (const item of items) {
@@ -155,19 +130,13 @@ export async function getFiles(
 /**
  * Get sheets from Excel workbook
  */
-export async function getSheets(
-	this: ILoadOptionsFunctions,
-): Promise<INodeListSearchResult> {
+export async function getSheets(this: ILoadOptionsFunctions): Promise<INodeListSearchResult> {
 	const results: INodeListSearchItems[] = [];
 
 	try {
-		const driveIdParam = this.getNodeParameter('driveId') as
-			| string
-			| ResourceLocatorValue;
+		const driveIdParam = this.getNodeParameter('driveId') as string | ResourceLocatorValue;
 		const driveId = getResourceValue(driveIdParam);
-		const fileIdParam = this.getNodeParameter('fileId') as
-			| string
-			| ResourceLocatorValue;
+		const fileIdParam = this.getNodeParameter('fileId') as string | ResourceLocatorValue;
 		const fileId = getResourceValue(fileIdParam);
 
 		if (!driveId || !fileId) {
@@ -175,23 +144,17 @@ export async function getSheets(
 		}
 
 		// Build endpoint for SharePoint
-		const siteIdParam = this.getNodeParameter('siteId') as
-			| string
-			| ResourceLocatorValue;
+		const siteIdParam = this.getNodeParameter('siteId') as string | ResourceLocatorValue;
 		const siteId = getResourceValue(siteIdParam);
 		const endpoint = `${GRAPH_BASE_URL}/sites/${siteId}/drives/${driveId}/items/${fileId}/content`;
 
 		// Download the file
-		const response = await this.helpers.httpRequestWithAuthentication.call(
-			this,
-			CREDENTIAL_NAME,
-			{
-				method: 'GET',
-				url: endpoint,
-				encoding: 'arraybuffer',
-				json: false,
-			},
-		);
+		const response = await this.helpers.httpRequestWithAuthentication.call(this, CREDENTIAL_NAME, {
+			method: 'GET',
+			url: endpoint,
+			encoding: 'arraybuffer',
+			json: false,
+		});
 
 		// Parse with exceljs
 		const workbook = new ExcelJS.Workbook();
@@ -216,19 +179,13 @@ export async function getSheets(
  * Get tables from Excel workbook via Graph API
  * Note: ExcelJS doesn't expose table metadata, so we use Graph API for this
  */
-export async function getTables(
-	this: ILoadOptionsFunctions,
-): Promise<INodeListSearchResult> {
+export async function getTables(this: ILoadOptionsFunctions): Promise<INodeListSearchResult> {
 	const results: INodeListSearchItems[] = [];
 
 	try {
-		const driveIdParam = this.getNodeParameter('driveId') as
-			| string
-			| ResourceLocatorValue;
+		const driveIdParam = this.getNodeParameter('driveId') as string | ResourceLocatorValue;
 		const driveId = getResourceValue(driveIdParam);
-		const fileIdParam = this.getNodeParameter('fileId') as
-			| string
-			| ResourceLocatorValue;
+		const fileIdParam = this.getNodeParameter('fileId') as string | ResourceLocatorValue;
 		const fileId = getResourceValue(fileIdParam);
 
 		if (!driveId || !fileId) {
@@ -236,22 +193,16 @@ export async function getTables(
 		}
 
 		// Build endpoint for SharePoint - use workbook/tables API
-		const siteIdParam = this.getNodeParameter('siteId') as
-			| string
-			| ResourceLocatorValue;
+		const siteIdParam = this.getNodeParameter('siteId') as string | ResourceLocatorValue;
 		const siteId = getResourceValue(siteIdParam);
 		const endpoint = `${GRAPH_BASE_URL}/sites/${siteId}/drives/${driveId}/items/${fileId}/workbook/tables`;
 
 		// Get tables via Graph API
-		const response = await this.helpers.httpRequestWithAuthentication.call(
-			this,
-			CREDENTIAL_NAME,
-			{
-				method: 'GET',
-				url: endpoint,
-				json: true,
-			},
-		);
+		const response = await this.helpers.httpRequestWithAuthentication.call(this, CREDENTIAL_NAME, {
+			method: 'GET',
+			url: endpoint,
+			json: true,
+		});
 
 		interface TableInfo {
 			id: string;

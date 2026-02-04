@@ -4,11 +4,11 @@ Research into how n8n implements sophisticated data input modes for row operatio
 
 ## The Three Modes
 
-| Mode | Value | Purpose |
-|------|-------|---------|
+| Mode                               | Value     | Purpose                                                                   |
+| ---------------------------------- | --------- | ------------------------------------------------------------------------- |
 | **Auto-Map Input Data to Columns** | `autoMap` | Incoming JSON property names are matched directly to sheet column headers |
-| **Map Each Column Below** | `manual` | User explicitly maps each input field to a destination column via UI |
-| **Raw** | `raw` | Takes JSON data as-is, expects pre-formatted structure |
+| **Map Each Column Below**          | `manual`  | User explicitly maps each input field to a destination column via UI      |
+| **Raw**                            | `raw`     | Takes JSON data as-is, expects pre-formatted structure                    |
 
 ## Implementation Pattern
 
@@ -83,29 +83,27 @@ Must be implemented in `methods.resourceMapping` to dynamically fetch columns:
 
 ```typescript
 methods = {
-  resourceMapping: {
-    async getMappingColumns(
-      this: ILoadOptionsFunctions
-    ): Promise<ResourceMapperFields> {
-      // 1. Get sheet parameters
-      const sheetName = this.getNodeParameter('sheetName', 0);
+	resourceMapping: {
+		async getMappingColumns(this: ILoadOptionsFunctions): Promise<ResourceMapperFields> {
+			// 1. Get sheet parameters
+			const sheetName = this.getNodeParameter('sheetName', 0);
 
-      // 2. Download/query the sheet to get headers
-      const headers = await getSheetHeaders(this, sheetName);
+			// 2. Download/query the sheet to get headers
+			const headers = await getSheetHeaders(this, sheetName);
 
-      // 3. Return column metadata
-      return {
-        fields: headers.map((header, index) => ({
-          id: header,
-          displayName: header,
-          type: 'string',
-          required: false,
-          defaultMatch: index === 0,  // First column as default match key
-          canBeUsedToMatch: true,
-        })),
-      };
-    },
-  },
+			// 3. Return column metadata
+			return {
+				fields: headers.map((header, index) => ({
+					id: header,
+					displayName: header,
+					type: 'string',
+					required: false,
+					defaultMatch: index === 0, // First column as default match key
+					canBeUsedToMatch: true,
+				})),
+			};
+		},
+	},
 };
 ```
 
@@ -146,30 +144,30 @@ The resourceMapper returns a structured object:
 
 ```typescript
 interface ResourceMapperValue {
-  mappingMode: 'autoMap' | 'defineBelow';
-  schema: ResourceMapperField[];
-  value: IDataObject | null;
+	mappingMode: 'autoMap' | 'defineBelow';
+	schema: ResourceMapperField[];
+	value: IDataObject | null;
 }
 
 interface ResourceMapperField {
-  id: string;
-  displayName: string;
-  type: FieldType;
-  required: boolean;
-  defaultMatch: boolean;
-  canBeUsedToMatch: boolean;
+	id: string;
+	displayName: string;
+	type: FieldType;
+	required: boolean;
+	defaultMatch: boolean;
+	canBeUsedToMatch: boolean;
 }
 ```
 
 ## Mode Comparison
 
-| Aspect | Auto-Map | Manual | Raw |
-|--------|----------|--------|-----|
-| **UI Complexity** | None | Full mapping interface | JSON editor |
-| **Configuration** | Auto-detected | Per-column mapping | Direct JSON |
-| **Column Discovery** | Automatic at runtime | Dynamic on setup | N/A |
-| **Use Case** | Input already matches columns | Names don't match or need transformation | Advanced users |
-| **Error Handling** | Ignores extra fields | User controls explicitly | Strict |
+| Aspect               | Auto-Map                      | Manual                                   | Raw            |
+| -------------------- | ----------------------------- | ---------------------------------------- | -------------- |
+| **UI Complexity**    | None                          | Full mapping interface                   | JSON editor    |
+| **Configuration**    | Auto-detected                 | Per-column mapping                       | Direct JSON    |
+| **Column Discovery** | Automatic at runtime          | Dynamic on setup                         | N/A            |
+| **Use Case**         | Input already matches columns | Names don't match or need transformation | Advanced users |
+| **Error Handling**   | Ignores extra fields          | User controls explicitly                 | Strict         |
 
 ## Examples in n8n Codebase
 

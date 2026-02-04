@@ -15,11 +15,8 @@ export async function execute(
 ): Promise<INodeExecutionData[]> {
 	const returnData: INodeExecutionData[] = [];
 
-	const tableNameParam = this.getNodeParameter('tableName', 0) as
-		| string
-		| ResourceLocatorValue;
-	const tableName =
-		typeof tableNameParam === 'object' ? tableNameParam.value : tableNameParam;
+	const tableNameParam = this.getNodeParameter('tableName', 0) as string | ResourceLocatorValue;
+	const tableName = typeof tableNameParam === 'object' ? tableNameParam.value : tableNameParam;
 
 	// Get table columns via Graph API
 	const endpoint = `${context.basePath}/workbook/tables/${encodeURIComponent(tableName)}/columns`;

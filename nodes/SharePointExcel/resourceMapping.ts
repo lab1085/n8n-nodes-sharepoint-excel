@@ -1,8 +1,5 @@
 import * as ExcelJS from 'exceljs';
-import type {
-	ILoadOptionsFunctions,
-	ResourceMapperFields,
-} from 'n8n-workflow';
+import type { ILoadOptionsFunctions, ResourceMapperFields } from 'n8n-workflow';
 import type { ResourceLocatorValue, ResourceMapperField } from './types';
 
 const GRAPH_BASE_URL = 'https://graph.microsoft.com/v1.0';
@@ -18,9 +15,7 @@ function getResourceValue(param: string | ResourceLocatorValue): string {
 /**
  * Infer field type from ExcelJS cell value
  */
-function inferFieldType(
-	value: ExcelJS.CellValue,
-): ResourceMapperField['type'] {
+function inferFieldType(value: ExcelJS.CellValue): ResourceMapperField['type'] {
 	if (value === null || value === undefined) {
 		return 'string';
 	}
@@ -45,24 +40,16 @@ export async function getMappingColumns(
 	const fields: ResourceMapperField[] = [];
 
 	try {
-		const siteIdParam = this.getNodeParameter('siteId') as
-			| string
-			| ResourceLocatorValue;
+		const siteIdParam = this.getNodeParameter('siteId') as string | ResourceLocatorValue;
 		const siteId = getResourceValue(siteIdParam);
 
-		const driveIdParam = this.getNodeParameter('driveId') as
-			| string
-			| ResourceLocatorValue;
+		const driveIdParam = this.getNodeParameter('driveId') as string | ResourceLocatorValue;
 		const driveId = getResourceValue(driveIdParam);
 
-		const fileIdParam = this.getNodeParameter('fileId') as
-			| string
-			| ResourceLocatorValue;
+		const fileIdParam = this.getNodeParameter('fileId') as string | ResourceLocatorValue;
 		const fileId = getResourceValue(fileIdParam);
 
-		const sheetNameParam = this.getNodeParameter('sheetName') as
-			| string
-			| ResourceLocatorValue;
+		const sheetNameParam = this.getNodeParameter('sheetName') as string | ResourceLocatorValue;
 		const sheetName = getResourceValue(sheetNameParam);
 
 		if (!siteId || !driveId || !fileId || !sheetName) {
@@ -82,16 +69,12 @@ export async function getMappingColumns(
 
 		// Download the file
 		const endpoint = `${GRAPH_BASE_URL}/sites/${siteId}/drives/${driveId}/items/${fileId}/content`;
-		const response = await this.helpers.httpRequestWithAuthentication.call(
-			this,
-			CREDENTIAL_NAME,
-			{
-				method: 'GET',
-				url: endpoint,
-				encoding: 'arraybuffer',
-				json: false,
-			},
-		);
+		const response = await this.helpers.httpRequestWithAuthentication.call(this, CREDENTIAL_NAME, {
+			method: 'GET',
+			url: endpoint,
+			encoding: 'arraybuffer',
+			json: false,
+		});
 
 		// Parse with ExcelJS
 		const workbook = new ExcelJS.Workbook();

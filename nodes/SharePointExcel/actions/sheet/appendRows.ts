@@ -29,10 +29,7 @@ function getRowData(
 		}
 		case 'manual': {
 			// Get from resourceMapper
-			const columns = context.getNodeParameter(
-				'columns',
-				itemIndex,
-			) as ResourceMapperValue;
+			const columns = context.getNodeParameter('columns', itemIndex) as ResourceMapperValue;
 			if (!columns.value || Object.keys(columns.value).length === 0) {
 				throw new NodeOperationError(
 					context.getNode(),
@@ -57,11 +54,9 @@ function getRowData(
 			}
 		}
 		default:
-			throw new NodeOperationError(
-				context.getNode(),
-				`Unknown data mode: ${dataMode}`,
-				{ itemIndex },
-			);
+			throw new NodeOperationError(context.getNode(), `Unknown data mode: ${dataMode}`, {
+				itemIndex,
+			});
 	}
 }
 
@@ -72,11 +67,8 @@ export async function execute(
 ): Promise<INodeExecutionData[]> {
 	const returnData: INodeExecutionData[] = [];
 
-	const sheetNameParam = this.getNodeParameter('sheetName', 0) as
-		| string
-		| ResourceLocatorValue;
-	const sheetName =
-		typeof sheetNameParam === 'object' ? sheetNameParam.value : sheetNameParam;
+	const sheetNameParam = this.getNodeParameter('sheetName', 0) as string | ResourceLocatorValue;
+	const sheetName = typeof sheetNameParam === 'object' ? sheetNameParam.value : sheetNameParam;
 
 	const dataMode = this.getNodeParameter('dataMode', 0, 'autoMap') as DataMode;
 	const options = this.getNodeParameter('options', 0, {}) as AppendOptions;

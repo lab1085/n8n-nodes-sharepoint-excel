@@ -6,12 +6,4 @@ import * as upsertRows from './upsertRows';
 import * as clearSheet from './clearSheet';
 import * as deleteSheet from './deleteSheet';
 
-export {
-	getSheets,
-	readRows,
-	appendRows,
-	updateRange,
-	upsertRows,
-	clearSheet,
-	deleteSheet,
-};
+export { getSheets, readRows, appendRows, updateRange, upsertRows, clearSheet, deleteSheet };

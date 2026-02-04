@@ -8,28 +8,19 @@ export async function execute(
 	_items: INodeExecutionData[],
 	context: OperationContext,
 ): Promise<INodeExecutionData[]> {
-	const sheetNameParam = this.getNodeParameter('sheetName', 0) as
-		| string
-		| ResourceLocatorValue;
-	const sheetName =
-		typeof sheetNameParam === 'object' ? sheetNameParam.value : sheetNameParam;
+	const sheetNameParam = this.getNodeParameter('sheetName', 0) as string | ResourceLocatorValue;
+	const sheetName = typeof sheetNameParam === 'object' ? sheetNameParam.value : sheetNameParam;
 
 	const workbook = await loadWorkbook.call(this, context.basePath);
 	const worksheet = workbook.getWorksheet(sheetName);
 
 	if (!worksheet) {
-		throw new NodeOperationError(
-			this.getNode(),
-			`Sheet "${sheetName}" not found in workbook`,
-		);
+		throw new NodeOperationError(this.getNode(), `Sheet "${sheetName}" not found in workbook`);
 	}
 
 	// Check if this is the last sheet
 	if (workbook.worksheets.length <= 1) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'Cannot delete the last sheet in a workbook',
-		);
+		throw new NodeOperationError(this.getNode(), 'Cannot delete the last sheet in a workbook');
 	}
 
 	// Remove the worksheet

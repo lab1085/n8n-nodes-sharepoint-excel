@@ -20,11 +20,8 @@ export async function execute(
 ): Promise<INodeExecutionData[]> {
 	const returnData: INodeExecutionData[] = [];
 
-	const tableNameParam = this.getNodeParameter('tableName', 0) as
-		| string
-		| ResourceLocatorValue;
-	const tableName =
-		typeof tableNameParam === 'object' ? tableNameParam.value : tableNameParam;
+	const tableNameParam = this.getNodeParameter('tableName', 0) as string | ResourceLocatorValue;
+	const tableName = typeof tableNameParam === 'object' ? tableNameParam.value : tableNameParam;
 	const lookupColumn = this.getNodeParameter('lookupColumn', 0) as string;
 	const lookupValue = this.getNodeParameter('lookupValue', 0) as string;
 

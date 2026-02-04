@@ -536,7 +536,13 @@ export const columnsProperty: INodeProperties = {
 	},
 	required: true,
 	typeOptions: {
-		loadOptionsDependsOn: ['siteId.value', 'driveId.value', 'fileId.value', 'sheetName.value', 'options.headerRow'],
+		loadOptionsDependsOn: [
+			'siteId.value',
+			'driveId.value',
+			'fileId.value',
+			'sheetName.value',
+			'options.headerRow',
+		],
 		resourceMapper: {
 			resourceMapperMethod: 'getMappingColumns',
 			mode: 'upsert',
@@ -563,8 +569,7 @@ export const rowDataProperty: INodeProperties = {
 	type: 'json',
 	required: true,
 	default: '{}',
-	description:
-		'JSON object with column headers as keys, or array of objects for multiple rows',
+	description: 'JSON object with column headers as keys, or array of objects for multiple rows',
 	displayOptions: {
 		show: {
 			operation: ['appendRows'],
@@ -634,8 +639,7 @@ export const upsertRowDataProperty: INodeProperties = {
 	type: 'json',
 	required: true,
 	default: '{}',
-	description:
-		'JSON object with column headers as keys, or array of objects for multiple rows',
+	description: 'JSON object with column headers as keys, or array of objects for multiple rows',
 	displayOptions: {
 		show: {
 			operation: ['upsertRows'],

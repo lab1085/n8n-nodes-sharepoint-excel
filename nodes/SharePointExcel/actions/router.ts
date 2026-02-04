@@ -8,9 +8,7 @@ import * as table from './table';
 /**
  * Build operation context from node parameters
  */
-export function buildContext(
-	executeFunctions: IExecuteFunctions,
-): OperationContext {
+export function buildContext(executeFunctions: IExecuteFunctions): OperationContext {
 	const source = 'sharepoint' as const;
 	const resource = executeFunctions.getNodeParameter('resource', 0) as Resource;
 	const operation = executeFunctions.getNodeParameter('operation', 0) as Operation;
@@ -19,8 +17,7 @@ export function buildContext(
 	const driveIdParam = executeFunctions.getNodeParameter('driveId', 0) as
 		| string
 		| ResourceLocatorValue;
-	const driveId =
-		typeof driveIdParam === 'object' ? driveIdParam.value : driveIdParam;
+	const driveId = typeof driveIdParam === 'object' ? driveIdParam.value : driveIdParam;
 
 	// fileId is not required for getWorkbooks operation
 	let fileId: string | undefined;
@@ -81,10 +78,7 @@ export async function router(
 			case 'deleteSheet':
 				return sheet.deleteSheet.execute.call(this, items, context);
 			default:
-				throw new NodeOperationError(
-					this.getNode(),
-					`Unknown sheet operation: ${operation}`,
-				);
+				throw new NodeOperationError(this.getNode(), `Unknown sheet operation: ${operation}`);
 		}
 	}
 
@@ -97,10 +91,7 @@ export async function router(
 			case 'lookup':
 				return table.lookup.execute.call(this, items, context);
 			default:
-				throw new NodeOperationError(
-					this.getNode(),
-					`Unknown table operation: ${operation}`,
-				);
+				throw new NodeOperationError(this.getNode(), `Unknown table operation: ${operation}`);
 		}
 	}
 
@@ -115,15 +106,9 @@ export async function router(
 			case 'getWorkbooks':
 				return workbook.getWorkbooks.execute.call(this, items, context);
 			default:
-				throw new NodeOperationError(
-					this.getNode(),
-					`Unknown workbook operation: ${operation}`,
-				);
+				throw new NodeOperationError(this.getNode(), `Unknown workbook operation: ${operation}`);
 		}
 	}
 
-	throw new NodeOperationError(
-		this.getNode(),
-		`Unknown resource: ${resource}`,
-	);
+	throw new NodeOperationError(this.getNode(), `Unknown resource: ${resource}`);
 }

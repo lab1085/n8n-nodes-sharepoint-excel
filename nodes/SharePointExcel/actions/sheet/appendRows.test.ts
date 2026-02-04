@@ -84,8 +84,13 @@ describe('appendRows', () => {
 			});
 			await execute.call(mockFunctions, [{ json: { Name: 'ValueA' } }], context);
 
-			expect(loadWorkbook).toHaveBeenCalledWith('/sites/test-site/drives/test-drive/items/test-file');
-			expect(saveWorkbook).toHaveBeenCalledWith('/sites/test-site/drives/test-drive/items/test-file', workbook);
+			expect(loadWorkbook).toHaveBeenCalledWith(
+				'/sites/test-site/drives/test-drive/items/test-file',
+			);
+			expect(saveWorkbook).toHaveBeenCalledWith(
+				'/sites/test-site/drives/test-drive/items/test-file',
+				workbook,
+			);
 		});
 	});
 
@@ -111,9 +116,7 @@ describe('appendRows', () => {
 			});
 
 			const context = createMockContext({ operation: 'appendRows' });
-			const inputItems = [
-				{ json: { Name: 'ValueA', Email: 'a@example.com' } },
-			];
+			const inputItems = [{ json: { Name: 'ValueA', Email: 'a@example.com' } }];
 
 			const result = await execute.call(mockFunctions, inputItems, context);
 
@@ -206,10 +209,15 @@ describe('appendRows', () => {
 			worksheet.getRow = vi.fn((rowNum: number) => {
 				if (rowNum === 3) {
 					return {
-						eachCell: vi.fn((_opts: { includeEmpty: boolean }, callback: (cell: { value: unknown }, col: number) => void) => {
-							callback({ value: 'Name' }, 1);
-							callback({ value: 'Email' }, 2);
-						}),
+						eachCell: vi.fn(
+							(
+								_opts: { includeEmpty: boolean },
+								callback: (cell: { value: unknown }, col: number) => void,
+							) => {
+								callback({ value: 'Name' }, 1);
+								callback({ value: 'Email' }, 2);
+							},
+						),
 						getCell: vi.fn(),
 					};
 				}
@@ -228,7 +236,11 @@ describe('appendRows', () => {
 			});
 
 			const context = createMockContext({ operation: 'appendRows' });
-			await execute.call(mockFunctions, [{ json: { Name: 'ValueA', Email: 'a@example.com' } }], context);
+			await execute.call(
+				mockFunctions,
+				[{ json: { Name: 'ValueA', Email: 'a@example.com' } }],
+				context,
+			);
 
 			expect(worksheet.getRow).toHaveBeenCalledWith(3);
 			expect(addedRows[0][1]).toBe('ValueA');
@@ -275,9 +287,7 @@ describe('appendRows', () => {
 			});
 
 			const context = createMockContext({ operation: 'appendRows' });
-			const inputItems = [
-				{ json: { Name: 'ValueA', Email: 'a@example.com' } },
-			];
+			const inputItems = [{ json: { Name: 'ValueA', Email: 'a@example.com' } }];
 
 			await execute.call(mockFunctions, inputItems, context);
 
@@ -376,9 +386,9 @@ describe('appendRows', () => {
 
 			const context = createMockContext({ operation: 'appendRows' });
 
-			await expect(
-				execute.call(mockFunctions, [{ json: {} }], context)
-			).rejects.toThrow('No column values provided in manual mapping mode');
+			await expect(execute.call(mockFunctions, [{ json: {} }], context)).rejects.toThrow(
+				'No column values provided in manual mapping mode',
+			);
 		});
 	});
 
@@ -400,7 +410,7 @@ describe('appendRows', () => {
 			const context = createMockContext({ operation: 'appendRows' });
 
 			await expect(
-				execute.call(mockFunctions, [{ json: { Name: 'ValueA' } }], context)
+				execute.call(mockFunctions, [{ json: { Name: 'ValueA' } }], context),
 			).rejects.toThrow('Unknown data mode: invalidMode');
 		});
 	});
@@ -450,9 +460,9 @@ describe('appendRows', () => {
 
 			const context = createMockContext({ operation: 'appendRows' });
 
-			await expect(
-				execute.call(mockFunctions, [{ json: {} }], context)
-			).rejects.toThrow('Invalid JSON in Row Data');
+			await expect(execute.call(mockFunctions, [{ json: {} }], context)).rejects.toThrow(
+				'Invalid JSON in Row Data',
+			);
 		});
 
 		it('handles array of objects in raw mode', async () => {
@@ -471,7 +481,8 @@ describe('appendRows', () => {
 			const mockFunctions = createMockExecuteFunctions({
 				sheetName: 'Sheet1',
 				dataMode: 'raw',
-				rowData: '[{"Name": "Item1", "Email": "item1@example.com"}, {"Name": "Item2", "Email": "item2@example.com"}]',
+				rowData:
+					'[{"Name": "Item1", "Email": "item1@example.com"}, {"Name": "Item2", "Email": "item2@example.com"}]',
 				options: {},
 			});
 
@@ -521,10 +532,7 @@ describe('appendRows', () => {
 			});
 
 			vi.mocked(loadWorkbook).mockRejectedValue(
-				new NodeOperationError(
-					mockFunctions.getNode(),
-					'Graph API request failed: Access denied',
-				),
+				new NodeOperationError(mockFunctions.getNode(), 'Graph API request failed: Access denied'),
 			);
 
 			const context = createMockContext({ operation: 'appendRows' });
@@ -549,10 +557,7 @@ describe('appendRows', () => {
 			});
 
 			vi.mocked(saveWorkbook).mockRejectedValue(
-				new NodeOperationError(
-					mockFunctions.getNode(),
-					'Graph API request failed: File locked',
-				),
+				new NodeOperationError(mockFunctions.getNode(), 'Graph API request failed: File locked'),
 			);
 
 			const context = createMockContext({ operation: 'appendRows' });

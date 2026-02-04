@@ -11,11 +11,8 @@ export async function execute(
 	_items: INodeExecutionData[],
 	context: OperationContext,
 ): Promise<INodeExecutionData[]> {
-	const sheetNameParam = this.getNodeParameter('sheetName', 0) as
-		| string
-		| ResourceLocatorValue;
-	const sheetName =
-		typeof sheetNameParam === 'object' ? sheetNameParam.value : sheetNameParam;
+	const sheetNameParam = this.getNodeParameter('sheetName', 0) as string | ResourceLocatorValue;
+	const sheetName = typeof sheetNameParam === 'object' ? sheetNameParam.value : sheetNameParam;
 	const cellRef = this.getNodeParameter('cellRef', 0) as string;
 	const cellValue = this.getNodeParameter('cellValue', 0) as string;
 

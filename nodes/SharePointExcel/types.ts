@@ -26,7 +26,11 @@ export type SheetOperation =
 export type TableOperation = 'getTableRows' | 'getColumns' | 'lookup';
 
 // Workbook operations
-export type WorkbookOperation = 'getWorkbookSheets' | 'addSheet' | 'deleteWorkbook' | 'getWorkbooks';
+export type WorkbookOperation =
+	| 'getWorkbookSheets'
+	| 'addSheet'
+	| 'deleteWorkbook'
+	| 'getWorkbooks';
 
 // All operations union
 export type Operation = SheetOperation | TableOperation | WorkbookOperation;

@@ -7,11 +7,8 @@ export async function execute(
 	_items: INodeExecutionData[],
 	context: OperationContext,
 ): Promise<INodeExecutionData[]> {
-	const sheetNameParam = this.getNodeParameter('sheetName', 0) as
-		| string
-		| ResourceLocatorValue;
-	const sheetName =
-		typeof sheetNameParam === 'object' ? sheetNameParam.value : sheetNameParam;
+	const sheetNameParam = this.getNodeParameter('sheetName', 0) as string | ResourceLocatorValue;
+	const sheetName = typeof sheetNameParam === 'object' ? sheetNameParam.value : sheetNameParam;
 
 	const workbook = await loadWorkbook.call(this, context.basePath);
 	const worksheet = getWorksheet(workbook, sheetName, this);

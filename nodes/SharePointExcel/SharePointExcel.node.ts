@@ -7,13 +7,7 @@ import type {
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 import { router } from './actions/router';
 import { properties } from './descriptions';
-import {
-	searchSites,
-	getDrives,
-	getFiles,
-	getSheets,
-	getTables,
-} from './listSearch';
+import { searchSites, getDrives, getFiles, getSheets, getTables } from './listSearch';
 import { getMappingColumns } from './resourceMapping';
 
 export class SharePointExcel implements INodeType {
@@ -24,8 +18,7 @@ export class SharePointExcel implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["resource"] + ": " + $parameter["operation"]}}',
-		description:
-			'Read and write Excel files in SharePoint (bypasses WAC token issues).',
+		description: 'Read and write Excel files in SharePoint (bypasses WAC token issues).',
 		defaults: {
 			name: 'Microsoft SharePoint Excel',
 		},

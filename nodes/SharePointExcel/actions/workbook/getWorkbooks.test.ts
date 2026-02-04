@@ -48,10 +48,7 @@ describe('getWorkbooks', () => {
 
 			await execute.call(mockFunctions, [{ json: {} }], context);
 
-			expect(graphRequest).toHaveBeenCalledWith(
-				'GET',
-				'/drives/custom-drive-id/root/children',
-			);
+			expect(graphRequest).toHaveBeenCalledWith('GET', '/drives/custom-drive-id/root/children');
 		});
 	});
 
@@ -182,15 +179,12 @@ describe('getWorkbooks', () => {
 			});
 
 			vi.mocked(graphRequest).mockRejectedValue(
-				new NodeOperationError(
-					mockFunctions.getNode(),
-					'Graph API request failed: Access denied',
-				),
+				new NodeOperationError(mockFunctions.getNode(), 'Graph API request failed: Access denied'),
 			);
 
-			await expect(
-				execute.call(mockFunctions, [{ json: {} }], context),
-			).rejects.toThrow('Graph API request failed: Access denied');
+			await expect(execute.call(mockFunctions, [{ json: {} }], context)).rejects.toThrow(
+				'Graph API request failed: Access denied',
+			);
 		});
 	});
 });

@@ -19,11 +19,8 @@ export async function execute(
 ): Promise<INodeExecutionData[]> {
 	const returnData: INodeExecutionData[] = [];
 
-	const tableNameParam = this.getNodeParameter('tableName', 0) as
-		| string
-		| ResourceLocatorValue;
-	const tableName =
-		typeof tableNameParam === 'object' ? tableNameParam.value : tableNameParam;
+	const tableNameParam = this.getNodeParameter('tableName', 0) as string | ResourceLocatorValue;
+	const tableName = typeof tableNameParam === 'object' ? tableNameParam.value : tableNameParam;
 
 	// Get returnAll and limit parameters
 	const returnAll = this.getNodeParameter('returnAll', 0, true) as boolean;
@@ -33,7 +30,12 @@ export async function execute(
 	const rawData = options.rawData || false;
 	const dataProperty = options.dataProperty || 'data';
 	const fieldsFilter = options.fields
-		? new Set(options.fields.split(',').map((f) => f.trim()).filter(Boolean))
+		? new Set(
+				options.fields
+					.split(',')
+					.map((f) => f.trim())
+					.filter(Boolean),
+			)
 		: new Set<string>();
 
 	// Get table columns first to build headers

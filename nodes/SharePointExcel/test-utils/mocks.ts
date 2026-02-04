@@ -1,9 +1,5 @@
 import { vi } from 'vitest';
-import type {
-	IExecuteFunctions,
-	ILoadOptionsFunctions,
-	INodeExecutionData,
-} from 'n8n-workflow';
+import type { IExecuteFunctions, ILoadOptionsFunctions, INodeExecutionData } from 'n8n-workflow';
 import type { OperationContext } from '../types';
 
 /**
@@ -40,10 +36,7 @@ export function createMockLoadOptionsFunctions(params: Record<string, unknown> =
 	const httpRequestMock = vi.fn();
 
 	// The actual function needs a .call method that invokes the mock
-	const httpRequestWithAuthentication = Object.assign(
-		vi.fn(),
-		{ call: httpRequestMock },
-	);
+	const httpRequestWithAuthentication = Object.assign(vi.fn(), { call: httpRequestMock });
 
 	return {
 		getNodeParameter,
@@ -91,12 +84,17 @@ export function createMockCell(value: string | number | boolean | null) {
  */
 export function createMockRow(cells: Record<number, string | number | boolean | null>) {
 	return {
-		eachCell: vi.fn((opts: { includeEmpty: boolean }, callback: (cell: { value: unknown }, colNumber: number) => void) => {
-			Object.entries(cells).forEach(([col, value]) => {
-				if (!opts.includeEmpty && (value === null || value === undefined)) return;
-				callback({ value }, Number(col));
-			});
-		}),
+		eachCell: vi.fn(
+			(
+				opts: { includeEmpty: boolean },
+				callback: (cell: { value: unknown }, colNumber: number) => void,
+			) => {
+				Object.entries(cells).forEach(([col, value]) => {
+					if (!opts.includeEmpty && (value === null || value === undefined)) return;
+					callback({ value }, Number(col));
+				});
+			},
+		),
 		getCell: vi.fn((colNumber: number) => createMockCell(cells[colNumber] ?? null)),
 	};
 }
@@ -137,7 +135,9 @@ export function createMockWorksheet(data: MockWorksheetOptions) {
 /**
  * Creates a mock exceljs Workbook
  */
-export function createMockWorkbook(worksheets: Record<string, ReturnType<typeof createMockWorksheet>>) {
+export function createMockWorkbook(
+	worksheets: Record<string, ReturnType<typeof createMockWorksheet>>,
+) {
 	return {
 		getWorksheet: vi.fn((name: string) => worksheets[name]),
 		xlsx: {

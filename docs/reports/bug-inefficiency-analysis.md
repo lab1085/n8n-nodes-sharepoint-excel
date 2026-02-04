@@ -8,6 +8,7 @@
 ### 1. Table operations use WAC token endpoints
 
 **Files:**
+
 - `nodes/SharePointExcel/listSearch.ts:235`
 - `nodes/SharePointExcel/actions/table/getRows.ts:40-58`
 - `nodes/SharePointExcel/actions/table/lookup.ts:32-47`
@@ -68,12 +69,13 @@ The endpoint doesn't include `siteId` in the path, which may cause issues with S
 ### 6. Redundant getResourceValue function defined twice
 
 **Files:**
+
 - `nodes/SharePointExcel/listSearch.ts:20-22`
 - `nodes/SharePointExcel/resourceMapping.ts:14-16`
 
 ```typescript
 function getResourceValue(param: string | ResourceLocatorValue): string {
-  return typeof param === 'object' ? param.value : param;
+	return typeof param === 'object' ? param.value : param;
 }
 ```
 
@@ -152,6 +154,7 @@ The `icons/` folder doesn't exist in the credentials directory.
 ### 13. GRAPH_BASE_URL duplicated
 
 Defined in three files:
+
 - `nodes/SharePointExcel/api.ts:11`
 - `nodes/SharePointExcel/listSearch.ts:14`
 - `nodes/SharePointExcel/resourceMapping.ts:8`
@@ -174,14 +177,14 @@ Large Excel files may take longer to download/upload over slow connections.
 
 ## Summary
 
-| Severity | Count |
-|----------|-------|
-| Critical | 1 |
-| Medium | 3 (3 fixed) |
-| Inefficiency | 5 |
-| Type Safety | 2 |
-| Minor | 3 |
-| **Total** | **11 remaining** |
+| Severity     | Count            |
+| ------------ | ---------------- |
+| Critical     | 1                |
+| Medium       | 3 (3 fixed)      |
+| Inefficiency | 5                |
+| Type Safety  | 2                |
+| Minor        | 3                |
+| **Total**    | **11 remaining** |
 
 ## Recommended Fix Priority
 

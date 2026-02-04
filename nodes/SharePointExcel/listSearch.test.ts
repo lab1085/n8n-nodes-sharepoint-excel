@@ -1,11 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-	searchSites,
-	getDrives,
-	getFiles,
-	getSheets,
-	getTables,
-} from './listSearch';
+import { searchSites, getDrives, getFiles, getSheets, getTables } from './listSearch';
 import { createMockLoadOptionsFunctions } from './test-utils/mocks';
 
 // Mock ExcelJS with a factory that returns a class
@@ -94,17 +88,14 @@ describe('listSearch', () => {
 		describe('error handling', () => {
 			it('logs error and returns empty results on API failure', async () => {
 				const mockFunctions = createMockLoadOptionsFunctions();
-				mockFunctions._httpRequestWithAuthentication.mockRejectedValue(
-					new Error('Network error'),
-				);
+				mockFunctions._httpRequestWithAuthentication.mockRejectedValue(new Error('Network error'));
 
 				const result = await searchSites.call(mockFunctions);
 
 				expect(result.results).toHaveLength(0);
-				expect(mockFunctions.logger.error).toHaveBeenCalledWith(
-					'Failed to search sites',
-					{ error: 'Network error' },
-				);
+				expect(mockFunctions.logger.error).toHaveBeenCalledWith('Failed to search sites', {
+					error: 'Network error',
+				});
 			});
 		});
 	});
@@ -165,17 +156,14 @@ describe('listSearch', () => {
 				const mockFunctions = createMockLoadOptionsFunctions({
 					siteId: 'site-123',
 				});
-				mockFunctions._httpRequestWithAuthentication.mockRejectedValue(
-					new Error('Network error'),
-				);
+				mockFunctions._httpRequestWithAuthentication.mockRejectedValue(new Error('Network error'));
 
 				const result = await getDrives.call(mockFunctions);
 
 				expect(result.results).toHaveLength(0);
-				expect(mockFunctions.logger.error).toHaveBeenCalledWith(
-					'Failed to get drives',
-					{ error: 'Network error' },
-				);
+				expect(mockFunctions.logger.error).toHaveBeenCalledWith('Failed to get drives', {
+					error: 'Network error',
+				});
 			});
 		});
 	});
@@ -236,17 +224,14 @@ describe('listSearch', () => {
 				const mockFunctions = createMockLoadOptionsFunctions({
 					driveId: 'drive-123',
 				});
-				mockFunctions._httpRequestWithAuthentication.mockRejectedValue(
-					new Error('Access denied'),
-				);
+				mockFunctions._httpRequestWithAuthentication.mockRejectedValue(new Error('Access denied'));
 
 				const result = await getFiles.call(mockFunctions);
 
 				expect(result.results).toHaveLength(0);
-				expect(mockFunctions.logger.error).toHaveBeenCalledWith(
-					'Failed to get files',
-					{ error: 'Access denied' },
-				);
+				expect(mockFunctions.logger.error).toHaveBeenCalledWith('Failed to get files', {
+					error: 'Access denied',
+				});
 			});
 		});
 	});
@@ -327,18 +312,15 @@ describe('listSearch', () => {
 					driveId: 'drive-123',
 					fileId: 'file-123',
 				});
-				mockFunctions._httpRequestWithAuthentication.mockResolvedValue(
-					Buffer.from('invalid-data'),
-				);
+				mockFunctions._httpRequestWithAuthentication.mockResolvedValue(Buffer.from('invalid-data'));
 				mockWorkbookInstance.xlsx.load.mockRejectedValue(new Error('Invalid Excel format'));
 
 				const result = await getSheets.call(mockFunctions);
 
 				expect(result.results).toHaveLength(0);
-				expect(mockFunctions.logger.error).toHaveBeenCalledWith(
-					'Failed to get sheets',
-					{ error: 'Invalid Excel format' },
-				);
+				expect(mockFunctions.logger.error).toHaveBeenCalledWith('Failed to get sheets', {
+					error: 'Invalid Excel format',
+				});
 			});
 		});
 	});
@@ -414,10 +396,9 @@ describe('listSearch', () => {
 				const result = await getTables.call(mockFunctions);
 
 				expect(result.results).toHaveLength(0);
-				expect(mockFunctions.logger.error).toHaveBeenCalledWith(
-					'Failed to get tables',
-					{ error: 'Table access denied' },
-				);
+				expect(mockFunctions.logger.error).toHaveBeenCalledWith('Failed to get tables', {
+					error: 'Table access denied',
+				});
 			});
 		});
 	});

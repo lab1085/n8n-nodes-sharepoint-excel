@@ -112,15 +112,12 @@ describe('getSheets', () => {
 			const context = createMockContext({ operation: 'getSheets' });
 
 			vi.mocked(loadWorkbook).mockRejectedValue(
-				new NodeOperationError(
-					mockFunctions.getNode(),
-					'Graph API request failed: Access denied',
-				),
+				new NodeOperationError(mockFunctions.getNode(), 'Graph API request failed: Access denied'),
 			);
 
-			await expect(
-				execute.call(mockFunctions, [{ json: {} }], context),
-			).rejects.toThrow('Graph API request failed: Access denied');
+			await expect(execute.call(mockFunctions, [{ json: {} }], context)).rejects.toThrow(
+				'Graph API request failed: Access denied',
+			);
 		});
 	});
 });

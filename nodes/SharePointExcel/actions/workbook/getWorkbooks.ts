@@ -16,9 +16,7 @@ export async function execute(
 	const items = (response as { value?: GraphDriveItem[] }).value || [];
 
 	// Filter to only Excel files
-	const excelFiles = items.filter(
-		(item) => item.file && item.name.toLowerCase().endsWith('.xlsx'),
-	);
+	const excelFiles = items.filter((item) => item.file && item.name.toLowerCase().endsWith('.xlsx'));
 
 	for (const file of excelFiles) {
 		returnData.push({

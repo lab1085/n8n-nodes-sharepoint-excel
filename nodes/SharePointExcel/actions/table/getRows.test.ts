@@ -29,10 +29,12 @@ describe('getRows (table)', () => {
 		it('returns keyed objects with all columns by default', async () => {
 			vi.mocked(graphRequest)
 				.mockResolvedValueOnce(mockColumnsResponse(['Name', 'Email', 'Age']))
-				.mockResolvedValueOnce(mockRowsResponse([
-					['John', 'john@test.com', 30],
-					['Jane', 'jane@test.com', 25],
-				]));
+				.mockResolvedValueOnce(
+					mockRowsResponse([
+						['John', 'john@test.com', 30],
+						['Jane', 'jane@test.com', 25],
+					]),
+				);
 
 			const mockFunctions = createMockExecuteFunctions({
 				tableName: 'Table1',
@@ -112,10 +114,12 @@ describe('getRows (table)', () => {
 		it('returns arrays instead of objects when rawData is true', async () => {
 			vi.mocked(graphRequest)
 				.mockResolvedValueOnce(mockColumnsResponse(['Name', 'Email']))
-				.mockResolvedValueOnce(mockRowsResponse([
-					['John', 'john@test.com'],
-					['Jane', 'jane@test.com'],
-				]));
+				.mockResolvedValueOnce(
+					mockRowsResponse([
+						['John', 'john@test.com'],
+						['Jane', 'jane@test.com'],
+					]),
+				);
 
 			const mockFunctions = createMockExecuteFunctions({
 				tableName: 'Table1',
@@ -200,12 +204,14 @@ describe('getRows (table)', () => {
 		it('skips rows with no data in normal mode', async () => {
 			vi.mocked(graphRequest)
 				.mockResolvedValueOnce(mockColumnsResponse(['Name', 'Email']))
-				.mockResolvedValueOnce(mockRowsResponse([
-					['John', 'john@test.com'],
-					[null, null],
-					['', ''],
-					['Jane', 'jane@test.com'],
-				]));
+				.mockResolvedValueOnce(
+					mockRowsResponse([
+						['John', 'john@test.com'],
+						[null, null],
+						['', ''],
+						['Jane', 'jane@test.com'],
+					]),
+				);
 
 			const mockFunctions = createMockExecuteFunctions({
 				tableName: 'Table1',
@@ -224,11 +230,13 @@ describe('getRows (table)', () => {
 		it('skips rows with no data in rawData mode', async () => {
 			vi.mocked(graphRequest)
 				.mockResolvedValueOnce(mockColumnsResponse(['Name', 'Email']))
-				.mockResolvedValueOnce(mockRowsResponse([
-					['John', 'john@test.com'],
-					[null, null],
-					['Jane', 'jane@test.com'],
-				]));
+				.mockResolvedValueOnce(
+					mockRowsResponse([
+						['John', 'john@test.com'],
+						[null, null],
+						['Jane', 'jane@test.com'],
+					]),
+				);
 
 			const mockFunctions = createMockExecuteFunctions({
 				tableName: 'Table1',

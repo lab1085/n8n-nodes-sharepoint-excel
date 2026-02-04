@@ -10,9 +10,8 @@ This is an n8n community node package that provides Excel file operations for Sh
 
 ```bash
 bun run build        # Compile TypeScript to dist/
-bun run lint         # Typecheck + n8n ESLint
-bun run lint:fix     # Auto-fix linting issues
-bun run format       # Format code with Prettier
+bun run lint         # Typecheck + n8n ESLint + Prettier check
+bun run lint:fix     # Auto-fix linting + format code (USE THIS)
 bun run test         # Run tests with vitest (DO NOT use `bun test`)
 bun run dev          # Start n8n with node loaded + hot reload (DO NOT run this)
 ```

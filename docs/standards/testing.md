@@ -19,13 +19,13 @@ nodes/SharePointExcel/actions/sheet/
 ```typescript
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { execute } from './operationName';
-import { /* shared mocks */ } from '../../test-utils/mocks';
+import {} from /* shared mocks */ '../../test-utils/mocks';
 
 // 1. Module mocks
 vi.mock('../../api', () => ({
-  loadWorkbook: vi.fn(),
-  saveWorkbook: vi.fn(),
-  getWorksheet: vi.fn(),
+	loadWorkbook: vi.fn(),
+	saveWorkbook: vi.fn(),
+	getWorksheet: vi.fn(),
 }));
 
 import { loadWorkbook, saveWorkbook, getWorksheet } from '../../api';
@@ -34,14 +34,22 @@ import { loadWorkbook, saveWorkbook, getWorksheet } from '../../api';
 
 // 3. Test suite
 describe('operationName', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
 
-  describe('basic functionality', () => { /* ... */ });
-  describe('operation-specific behavior', () => { /* ... */ });
-  describe('edge cases', () => { /* ... */ });
-  describe('error handling', () => { /* ... */ });
+	describe('basic functionality', () => {
+		/* ... */
+	});
+	describe('operation-specific behavior', () => {
+		/* ... */
+	});
+	describe('edge cases', () => {
+		/* ... */
+	});
+	describe('error handling', () => {
+		/* ... */
+	});
 });
 ```
 
@@ -89,10 +97,10 @@ Generic, reusable mock creators:
 
 ### When to Use Shared vs Local
 
-| Location | Use Case |
-|----------|----------|
-| `test-utils/mocks.ts` | Reusable across multiple test files |
-| Local in test file | One-off setup specific to single test |
+| Location              | Use Case                              |
+| --------------------- | ------------------------------------- |
+| `test-utils/mocks.ts` | Reusable across multiple test files   |
+| Local in test file    | One-off setup specific to single test |
 
 ### vi.mocked() Setup
 
@@ -133,10 +141,10 @@ expect(spliceRows).not.toHaveBeenCalled();
 ```typescript
 // Verify return structure
 expect(result[0].json).toEqual({
-  success: true,
-  sheet: 'Sheet1',
-  clearedRows: 3,
-  clearedColumns: 2,
+	success: true,
+	sheet: 'Sheet1',
+	clearedRows: 3,
+	clearedColumns: 2,
 });
 
 // Or verify specific fields
@@ -182,11 +190,11 @@ When testing validation errors in the action itself:
 
 ```typescript
 it('throws error when columns value is empty', async () => {
-  // setup...
+	// setup...
 
-  await expect(
-    execute.call(mockFunctions, [{ json: {} }], context)
-  ).rejects.toThrow('No column values provided in manual mapping mode');
+	await expect(execute.call(mockFunctions, [{ json: {} }], context)).rejects.toThrow(
+		'No column values provided in manual mapping mode',
+	);
 });
 ```
 
@@ -198,37 +206,34 @@ Test that errors from dependencies (API calls, helpers) propagate correctly. Imp
 import { NodeOperationError } from 'n8n-workflow';
 
 it('throws error when sheet not found', async () => {
-  const workbook = createMockWorkbook({});
-  const mockFunctions = createMockExecuteFunctions({ sheetName: 'NonExistent' });
-  const context = createMockContext({ operation: 'clearSheet' });
+	const workbook = createMockWorkbook({});
+	const mockFunctions = createMockExecuteFunctions({ sheetName: 'NonExistent' });
+	const context = createMockContext({ operation: 'clearSheet' });
 
-  vi.mocked(loadWorkbook).mockResolvedValue(workbook as never);
-  vi.mocked(getWorksheet).mockImplementation(() => {
-    throw new NodeOperationError(
-      mockFunctions.getNode(),
-      'Sheet "NonExistent" not found in workbook',
-    );
-  });
+	vi.mocked(loadWorkbook).mockResolvedValue(workbook as never);
+	vi.mocked(getWorksheet).mockImplementation(() => {
+		throw new NodeOperationError(
+			mockFunctions.getNode(),
+			'Sheet "NonExistent" not found in workbook',
+		);
+	});
 
-  await expect(
-    execute.call(mockFunctions, [{ json: {} }], context),
-  ).rejects.toThrow('Sheet "NonExistent" not found in workbook');
+	await expect(execute.call(mockFunctions, [{ json: {} }], context)).rejects.toThrow(
+		'Sheet "NonExistent" not found in workbook',
+	);
 });
 
 it('throws error when loadWorkbook fails', async () => {
-  const mockFunctions = createMockExecuteFunctions({ sheetName: 'Sheet1' });
-  const context = createMockContext({ operation: 'clearSheet' });
+	const mockFunctions = createMockExecuteFunctions({ sheetName: 'Sheet1' });
+	const context = createMockContext({ operation: 'clearSheet' });
 
-  vi.mocked(loadWorkbook).mockRejectedValue(
-    new NodeOperationError(
-      mockFunctions.getNode(),
-      'Graph API request failed: Access denied',
-    ),
-  );
+	vi.mocked(loadWorkbook).mockRejectedValue(
+		new NodeOperationError(mockFunctions.getNode(), 'Graph API request failed: Access denied'),
+	);
 
-  await expect(
-    execute.call(mockFunctions, [{ json: {} }], context),
-  ).rejects.toThrow('Graph API request failed: Access denied');
+	await expect(execute.call(mockFunctions, [{ json: {} }], context)).rejects.toThrow(
+		'Graph API request failed: Access denied',
+	);
 });
 ```
 
@@ -252,6 +257,7 @@ expect(result[0].json.clearedRows).toBe(4);
 Don't test the same thing multiple times in different describe blocks.
 
 Tests with different input values that exercise the same code path are redundant. For example, testing `rowCount: 3`, `rowCount: 4`, and `rowCount: 10000` all verify the same logic. Instead, keep:
+
 - **Boundary cases** (0, 1) - test edge behavior
 - **One representative case** - covered by happy path test
 - **Scale test** (large values) - only if testing performance or limits

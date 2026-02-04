@@ -29,10 +29,7 @@ function getRowData(
 		}
 		case 'manual': {
 			// Get from resourceMapper
-			const columns = context.getNodeParameter(
-				'columns',
-				itemIndex,
-			) as ResourceMapperValue;
+			const columns = context.getNodeParameter('columns', itemIndex) as ResourceMapperValue;
 			if (!columns.value || Object.keys(columns.value).length === 0) {
 				throw new NodeOperationError(
 					context.getNode(),
@@ -57,21 +54,16 @@ function getRowData(
 			}
 		}
 		default:
-			throw new NodeOperationError(
-				context.getNode(),
-				`Unknown data mode: ${dataMode}`,
-				{ itemIndex },
-			);
+			throw new NodeOperationError(context.getNode(), `Unknown data mode: ${dataMode}`, {
+				itemIndex,
+			});
 	}
 }
 
 /**
  * Get key columns for matching rows
  */
-function getKeyColumns(
-	context: IExecuteFunctions,
-	dataMode: DataMode,
-): string[] {
+function getKeyColumns(context: IExecuteFunctions, dataMode: DataMode): string[] {
 	if (dataMode === 'manual') {
 		// Get from resourceMapper matchingColumns
 		const columns = context.getNodeParameter('columns', 0) as ResourceMapperValue;
@@ -110,11 +102,8 @@ export async function execute(
 ): Promise<INodeExecutionData[]> {
 	const returnData: INodeExecutionData[] = [];
 
-	const sheetNameParam = this.getNodeParameter('sheetName', 0) as
-		| string
-		| ResourceLocatorValue;
-	const sheetName =
-		typeof sheetNameParam === 'object' ? sheetNameParam.value : sheetNameParam;
+	const sheetNameParam = this.getNodeParameter('sheetName', 0) as string | ResourceLocatorValue;
+	const sheetName = typeof sheetNameParam === 'object' ? sheetNameParam.value : sheetNameParam;
 
 	const dataMode = this.getNodeParameter('dataMode', 0, 'autoMap') as DataMode;
 	const options = this.getNodeParameter('options', 0, {}) as UpsertOptions;
@@ -143,10 +132,7 @@ export async function execute(
 	// Validate key columns exist in headers
 	for (const keyCol of keyColumns) {
 		if (headerMap[keyCol] === undefined) {
-			throw new NodeOperationError(
-				this.getNode(),
-				`Key column "${keyCol}" not found in headers`,
-			);
+			throw new NodeOperationError(this.getNode(), `Key column "${keyCol}" not found in headers`);
 		}
 	}
 
