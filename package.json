@@ -1,6 +1,6 @@
 {
 	"name": "@lab1095/n8n-nodes-sharepoint-excel",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "n8n node to read and write Excel files stored in SharePoint (bypasses WAC token issues)",
 	"license": "MIT",
 	"homepage": "https://github.com/lab1085/n8n-nodes-sharepoint-excel",
