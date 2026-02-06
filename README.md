@@ -1,6 +1,8 @@
 # n8n-nodes-sharepoint-excel
 
 > ⚠️ **Warning:** This node is currently in development and not ready for production use. Use at your own risk.
+>
+> ⚠️ **Warning:** Please review the [known limitations](docs/limitations) before using this node.
 
 This is an n8n community node. It lets you use **Microsoft SharePoint Excel** files in your n8n workflows.
 
