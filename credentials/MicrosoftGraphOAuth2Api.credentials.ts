@@ -16,8 +16,7 @@ export class MicrosoftGraphOAuth2Api implements ICredentialType {
 			displayName: 'Scope',
 			name: 'scope',
 			type: 'hidden',
-			default:
-				'openid offline_access Sites.Read.All Sites.ReadWrite.All Files.Read.All Files.ReadWrite.All',
+			default: 'openid offline_access Sites.Read.All Files.ReadWrite.All',
 		},
 	];
 
