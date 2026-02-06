@@ -11,6 +11,7 @@ This node provides read and write operations for Excel files stored in SharePoin
 [Credentials](#credentials)
 [Compatibility](#compatibility)
 [Usage](#usage)
+[Documentation](#documentation)
 [Resources](#resources)
 
 ## Installation
@@ -66,10 +67,11 @@ This node requires **Microsoft Graph OAuth2** credentials.
    - Set the redirect URI to your n8n OAuth callback URL
 
 2. **Configure API permissions:**
-   - Add the following Microsoft Graph permissions:
-     - `Sites.ReadWrite.All` - Read and write items in all site collections
-     - `Files.ReadWrite.All` - Read and write files in all site collections
+   - Add the following Microsoft Graph **delegated** permissions:
+     - `Sites.Read.All` - Read sites (for browsing sites and drives)
+     - `Files.ReadWrite.All` - Read and write files
    - Grant admin consent for these permissions
+   - See [Security and Permissions](docs/security-and-permissions.md) for details
 
 3. **Create a client secret:**
    - Go to "Certificates & secrets"
@@ -128,6 +130,13 @@ When appending or upserting rows:
 - Provide data as a JSON object with column headers as keys
 - For multiple rows, provide an array of objects
 - The node automatically matches columns to existing headers
+
+## Documentation
+
+| Document                                                     | Description                                                    |
+| ------------------------------------------------------------ | -------------------------------------------------------------- |
+| [Security and Permissions](docs/security-and-permissions.md) | OAuth scopes, delegated permissions, enterprise considerations |
+| [File Locking Behavior](docs/file-locking-behavior.md)       | Why files get locked and how to handle it                      |
 
 ## Resources
 

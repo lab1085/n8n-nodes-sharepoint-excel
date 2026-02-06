@@ -91,9 +91,26 @@ export async function graphRequest(
 		if (err instanceof NodeOperationError) {
 			throw err;
 		}
-		// Wrap other errors
+
+		// Check for locked file error (423 status or resourceLocked code)
 		const error = err as Error;
-		throw new NodeOperationError(this.getNode(), `Graph API request failed: ${error.message}`);
+		const errorMessage = error.message || '';
+
+		if (errorMessage.includes('423') || errorMessage.includes('resourceLocked')) {
+			throw new NodeOperationError(
+				this.getNode(),
+				'File is locked - someone has it open in Excel',
+				{
+					description:
+						'The file cannot be modified because it is open in Excel or SharePoint. ' +
+						'Close the file and try again. If using a shared file, wait for other users to close it.\n\n' +
+						`Raw error: ${errorMessage}`,
+				},
+			);
+		}
+
+		// Wrap other errors
+		throw new NodeOperationError(this.getNode(), `Graph API request failed: ${errorMessage}`);
 	}
 }
 
