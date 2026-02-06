@@ -1,5 +1,7 @@
 # n8n-nodes-sharepoint-excel
 
+> **Warning:** This node is currently in development and not ready for production use. Use at your own risk.
+
 This is an n8n community node. It lets you use **Microsoft SharePoint Excel** files in your n8n workflows.
 
 This node provides read and write operations for Excel files stored in SharePoint document libraries via Microsoft Graph API. Unlike the native n8n Microsoft Excel node that uses WAC (Web Application Companion) tokens, this node downloads and uploads the entire Excel file using the `exceljs` library, **bypassing WAC token limitations** that often cause issues with SharePoint-hosted files.
@@ -44,7 +46,6 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 | Operation         | Description                        |
 | ----------------- | ---------------------------------- |
-| **Get Sheets**    | List all sheets in the workbook    |
 | **Add Sheet**     | Create a new sheet in the workbook |
 | **Delete**        | Delete the workbook file           |
 | **Get Workbooks** | List all Excel files in the drive  |
@@ -131,12 +132,25 @@ When appending or upserting rows:
 - For multiple rows, provide an array of objects
 - The node automatically matches columns to existing headers
 
+## Limitations
+
+This node uses the `exceljs` library which has some limitations compared to native Graph API Excel endpoints:
+
+| Limitation                        | Impact                                                                                                                                                                                                                             |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Excel Tables can be corrupted** | Write operations (append, update, upsert, clear, delete sheet, add sheet) on files containing formal Excel Tables may corrupt those tables. Read operations are safe. See [details](docs/limitations/exceljs-table-limitation.md). |
+| **Full file download/upload**     | Each operation downloads and re-uploads the entire file, which may be slower for large files.                                                                                                                                      |
+| **No table creation/deletion**    | Cannot create new Excel Tables or delete existing ones (can only read table data).                                                                                                                                                 |
+
+**Note:** "Excel Tables" refers to the formal Table feature (Insert → Table), not regular data in cells. Most users have regular cell data and are unaffected.
+
 ## Documentation
 
-| Document                                                     | Description                                                    |
-| ------------------------------------------------------------ | -------------------------------------------------------------- |
-| [Security and Permissions](docs/security-and-permissions.md) | OAuth scopes, delegated permissions, enterprise considerations |
-| [File Locking Behavior](docs/file-locking-behavior.md)       | Why files get locked and how to handle it                      |
+| Document                                                               | Description                                                    |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------- |
+| [Security and Permissions](docs/security-and-permissions.md)           | OAuth scopes, delegated permissions, enterprise considerations |
+| [File Locking Behavior](docs/limitations/file-locking-behavior.md)     | Why files get locked and how to handle it                      |
+| [Excel Table Limitation](docs/limitations/exceljs-table-limitation.md) | Details on table corruption risk with exceljs                  |
 
 ## Resources
 
