@@ -85,19 +85,13 @@ export const workbookOperations: INodeProperties = {
 			action: 'Delete workbook',
 		},
 		{
-			name: 'Get Sheets',
-			value: 'getWorkbookSheets',
-			description: 'Get list of sheets in the workbook',
-			action: 'Get sheets from workbook',
-		},
-		{
 			name: 'Get Workbooks',
 			value: 'getWorkbooks',
 			description: 'List Excel files in the drive',
 			action: 'Get workbooks from drive',
 		},
 	],
-	default: 'getWorkbookSheets',
+	default: 'addSheet',
 };
 
 // Sheet Operations

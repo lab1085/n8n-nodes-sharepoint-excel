@@ -97,8 +97,6 @@ export async function router(
 
 	if (resource === 'workbook') {
 		switch (operation) {
-			case 'getWorkbookSheets':
-				return workbook.getSheets.execute.call(this, items, context);
 			case 'addSheet':
 				return workbook.addSheet.execute.call(this, items, context);
 			case 'deleteWorkbook':
