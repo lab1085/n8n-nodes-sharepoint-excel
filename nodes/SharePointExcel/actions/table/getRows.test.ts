@@ -69,6 +69,32 @@ describe('getRows (table)', () => {
 				expect.stringContaining('/workbook/tables/Table1/columns'),
 			);
 		});
+
+		it('uses correct basePath from context', async () => {
+			vi.mocked(graphRequest)
+				.mockResolvedValueOnce(mockColumnsResponse(['Name']))
+				.mockResolvedValueOnce(mockRowsResponse([['John']]));
+
+			const mockFunctions = createMockExecuteFunctions({
+				tableName: 'Table1',
+				returnAll: true,
+				options: {},
+			});
+
+			const basePath = '/sites/site-id/drives/drive-id/items/file-id';
+			const context = createMockContext({
+				resource: 'table',
+				operation: 'getTableRows',
+				basePath,
+			});
+			await execute.call(mockFunctions, [], context);
+
+			expect(graphRequest).toHaveBeenCalledWith(
+				'GET',
+				`${basePath}/workbook/tables/Table1/columns`,
+			);
+			expect(graphRequest).toHaveBeenCalledWith('GET', `${basePath}/workbook/tables/Table1/rows`);
+		});
 	});
 
 	describe('returnAll and limit', () => {
@@ -285,6 +311,38 @@ describe('getRows (table)', () => {
 			const result = await execute.call(mockFunctions, [], context);
 
 			expect(result[0].json).toEqual({ Name: 'John', Email: null });
+		});
+	});
+
+	describe('error handling', () => {
+		it('throws error when columns fetch fails', async () => {
+			vi.mocked(graphRequest).mockRejectedValueOnce(new Error('Table not found'));
+
+			const mockFunctions = createMockExecuteFunctions({
+				tableName: 'NonExistentTable',
+				returnAll: true,
+				options: {},
+			});
+
+			const context = createMockContext({ resource: 'table', operation: 'getTableRows' });
+
+			await expect(execute.call(mockFunctions, [], context)).rejects.toThrow('Table not found');
+		});
+
+		it('throws error when rows fetch fails', async () => {
+			vi.mocked(graphRequest)
+				.mockResolvedValueOnce(mockColumnsResponse(['Name']))
+				.mockRejectedValueOnce(new Error('Access denied'));
+
+			const mockFunctions = createMockExecuteFunctions({
+				tableName: 'Table1',
+				returnAll: true,
+				options: {},
+			});
+
+			const context = createMockContext({ resource: 'table', operation: 'getTableRows' });
+
+			await expect(execute.call(mockFunctions, [], context)).rejects.toThrow('Access denied');
 		});
 	});
 });
