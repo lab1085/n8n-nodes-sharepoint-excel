@@ -103,6 +103,8 @@ The native n8n Microsoft Excel 365 node uses WAC (Web Application Companion) tok
 
 This node takes a different approach: it **downloads the entire Excel file**, modifies it locally using the `exceljs` library, and **uploads it back**. This bypasses all WAC-related issues.
 
+For a deep technical analysis of WAC tokens and why this approach was chosen, see [Why Not WAC?](docs/research/wac-tokens-research.md)
+
 ### Finding Required IDs
 
 The node provides searchable dropdowns to select:
@@ -153,6 +155,7 @@ This node uses the `exceljs` library which has some limitations compared to nati
 | [Security and Permissions](docs/security-and-permissions.md)           | OAuth scopes, delegated permissions, enterprise considerations |
 | [File Locking Behavior](docs/limitations/file-locking-behavior.md)     | Why files get locked and how to handle it                      |
 | [Excel Table Limitation](docs/limitations/exceljs-table-limitation.md) | Details on table corruption risk with exceljs                  |
+| [Why Not WAC?](docs/research/wac-tokens-research.md)                   | Deep dive into WAC tokens, why they fail, and our approach     |
 
 ## Resources
 
