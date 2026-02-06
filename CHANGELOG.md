@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-02-06
+
+### Changed
+
+- Reduced OAuth scopes to minimum required permissions ([2f6f288](../../commit/2f6f288))
+- Removed duplicate getSheets operation from workbook resource ([be2a29c](../../commit/be2a29c))
+- Added limitations section and file locking documentation to README ([1c5bc75](../../commit/1c5bc75), [0cce46a](../../commit/0cce46a))
+
+### Fixed
+
+- Remove duplicate npm workflow in CI ([8428859](../../commit/8428859))
+
+### Tests
+
+- Added tests for addSheet and deleteWorkbook operations ([aabe857](../../commit/aabe857))
+- Added tests for getColumns, lookup, and getRows table operations ([45cbbe9](../../commit/45cbbe9))
+- Added tests for updateRange, getSheets, and deleteSheet operations ([1e1fa0d](../../commit/1e1fa0d), [54c29bf](../../commit/54c29bf), [d053213](../../commit/d053213))
+- Added tests for upsertRows operation ([20f03d2](../../commit/20f03d2))
+
 ## [0.2.0] - 2026-02-04
 
 ### Added
@@ -74,5 +93,7 @@ Initial release of the Microsoft SharePoint Excel node for n8n. This node provid
 - Renamed node to "Microsoft SharePoint Excel" for better discoverability ([94a9b1a](../../commit/94a9b1a))
 - Replaced Biome with Prettier for code formatting ([faf9745](../../commit/faf9745))
 
-[unreleased]: ../../compare/v0.1.1...HEAD
+[unreleased]: ../../compare/v0.2.1...HEAD
+[0.2.1]: ../../compare/v0.2.0...v0.2.1
+[0.2.0]: ../../compare/v0.1.1...v0.2.0
 [0.1.1]: ../../releases/tag/v0.1.1
